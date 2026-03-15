@@ -1,0 +1,26 @@
+{
+  "name": "perfect-granita",
+  "version": "1.0.0",
+  "description": "Un générateur de recettes de granita sicilien en ligne de commande",
+  "main": "src/index.js",
+  "bin": {
+    "perfectgranita": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "granita",
+    "sicily",
+    "dessert",
+    "frozen",
+    "cli",
+    "recipe"
+  ],
+  "author": "mora9s",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.0.0"
+  }
+}

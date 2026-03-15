@@ -1,0 +1,23 @@
+{
+  "name": "perfect-granita",
+  "version": "1.0.0",
+  "description": "CLI pour les recettes de granita sicilien parfait",
+  "main": "src/index.js",
+  "bin": {
+    "perfect-granita": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "commander": "^11.1.0"
+  },
+  "keywords": [
+    "granita",
+    "sicilian",
+    "recipe",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT"
+}
