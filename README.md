@@ -64,3 +64,7 @@ MIT
 ---
 
 *"Un granita parfait, c'est de la Sicile dans votre verre."* 🍋❄️
+
+Each run of the CLI prints a curated pairing to inspire your next dessert.
+
+<!-- Codex review test marker -->
