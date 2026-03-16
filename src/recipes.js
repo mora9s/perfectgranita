@@ -154,6 +154,38 @@ const recipes = {
       freezing: '3-4 heures',
       total: '~4 heures'
     }
+  },
+  mojito: {
+    name: 'Mojito Frozen',
+    emoji: '🍃',
+    description: 'La version glacée et rafraîchissante du célèbre cocktail cubain, sans alcool',
+    ingredients: [
+      '300ml d\'eau',
+      '80g de sucre de canne',
+      '80ml de jus de citron vert',
+      '15 feuilles de menthe fraîche',
+      '200ml d\'eau gazeuse'
+    ],
+    proportions: {
+      water: '300ml + 200ml eau gazeuse',
+      sugar: '80g de sucre de canne',
+      flavor: '80ml jus citron vert + 15 feuilles menthe'
+    },
+    instructions: [
+      'Dans un bol, écraser délicatement les feuilles de menthe avec le sucre pour libérer les arômes',
+      'Ajouter le jus de citron vert et mélanger jusqu\'à dissolution du sucre',
+      'Ajouter l\'eau et l\'eau gazeuse, mélanger doucement',
+      'Filtrer pour retirer les feuilles de menthe si désiré',
+      'Verser dans un plat peu profond et congeler',
+      'Gratter la surface toutes les 30 minutes pendant 3-4 heures',
+      'Répéter l\'opération jusqu\'à obtenir une texture granuleuse',
+      'Servir immédiatement dans des verres frais'
+    ],
+    time: {
+      prep: '15 minutes',
+      freezing: '3-4 heures',
+      total: '~4 heures'
+    }
   }
 };
 
