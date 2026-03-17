@@ -167,6 +167,40 @@ const defaultRecipes: Recipe[] = [
       total: '~4 heures'
     },
     isCustom: false
+  },
+  {
+    id: 'mojito',
+    name: 'Mojito Frozen',
+    emoji: '🍹',
+    description: 'Le cocktail cubain revisité en version granita, ultra rafraîchissant',
+    ingredients: [
+      "500ml d'eau",
+      '150g de sucre',
+      '1 bouquet de menthe fraîche',
+      '2 citrons verts',
+      '100ml de rhum blanc (optionnel)'
+    ],
+    proportions: {
+      water: '500ml',
+      sugar: '150g',
+      flavor: 'menthe + citron vert + rhum'
+    },
+    instructions: [
+      "Porter l'eau et le sucre à ébullition",
+      'Laisser refroidir le sirop',
+      'Mixer la menthe avec le jus des citrons verts',
+      'Filtrer pour retirer les feuilles de menthe',
+      'Mélanger le sirop, le jus de menthe-citron et le rhum',
+      'Verser dans un plat peu profond',
+      'Congeler et gratter toutes les 30 minutes pendant 3-4 heures',
+      'Servir avec une feuille de menthe et une tranche de citron'
+    ],
+    time: {
+      prep: '20 minutes',
+      freezing: '3-4 heures',
+      total: '~4 heures'
+    },
+    isCustom: false
   }
 ];
 
