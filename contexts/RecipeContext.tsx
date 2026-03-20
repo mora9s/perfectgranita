@@ -47,10 +47,7 @@ const quantityTargetsSeed: QuantityTarget[] = [
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
 export function RecipeProvider({ children }: { children: ReactNode }) {
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    { id: '1', name: 'Pâtes Carbonara' },
-    { id: '2', name: 'Salade César' },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedQuantityLevel, setSelectedQuantityLevel] =
     useState<QuantityLevel>('inter');
 

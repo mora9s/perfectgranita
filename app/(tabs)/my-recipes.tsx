@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useRecipes, type QuantityLevel } from '../../contexts/RecipeContext';
+import { RecipeProvider, useRecipes, type QuantityLevel } from '../../contexts/RecipeContext';
 
 const LEVEL_ACCENT: Record<QuantityLevel, string> = {
   min: '#22C55E',
@@ -16,7 +16,7 @@ const LEVEL_ACCENT: Record<QuantityLevel, string> = {
   max: '#F97316',
 };
 
-export default function MyRecipesScreen() {
+function MyRecipesScreenContent() {
   const params = useLocalSearchParams();
   const {
     recipes,
@@ -128,6 +128,14 @@ export default function MyRecipesScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+export default function MyRecipesScreen() {
+  return (
+    <RecipeProvider>
+      <MyRecipesScreenContent />
+    </RecipeProvider>
   );
 }
 
