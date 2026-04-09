@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -6,33 +6,13 @@ import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
 import type { MachineId } from '@/app/types/machine';
 
-function MachineIllustration({ machineId }: { machineId: MachineId }) {
-  if (machineId === 'slushi-max') {
-    return (
-      <View style={styles.maxVisualShell}>
-        <View style={styles.maxBody}>
-          <View style={styles.maxTop} />
-          <View style={styles.maxWindow}>
-            <View style={styles.maxIceCube} />
-            <View style={styles.maxIceCubeSmall} />
-          </View>
-          <View style={styles.maxFooter} />
-        </View>
-      </View>
-    );
-  }
+const MACHINE_IMAGES: Record<MachineId, any> = {
+  slushi: require('@/assets/images/ninja-slushi-fs301eu.jpg'),
+  'slushi-max': require('@/assets/images/ninja-slushi-max-fs605eubr.jpg'),
+};
 
-  return (
-    <View style={styles.slushiVisualShell}>
-      <View style={styles.slushiBody}>
-        <View style={styles.slushiLid} />
-        <View style={styles.slushiTank}>
-          <View style={styles.slushiWave} />
-        </View>
-        <View style={styles.slushiTap} />
-      </View>
-    </View>
-  );
+function MachineIllustration({ machineId }: { machineId: MachineId }) {
+  return <Image source={MACHINE_IMAGES[machineId]} style={styles.machineImage} resizeMode="contain" />;
 }
 
 export default function IndexScreen() {
@@ -162,103 +142,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-  slushiVisualShell: {
-    height: 120,
-    borderRadius: 14,
-    backgroundColor: '#F5F3FF',
-    alignItems: 'center',
-    justifyContent: 'center',
+  machineImage: {
+    width: '100%',
+    height: 180,
     marginBottom: 12,
-  },
-  slushiBody: {
-    width: 96,
-    alignItems: 'center',
-  },
-  slushiLid: {
-    width: 86,
-    height: 10,
-    borderRadius: 6,
-    backgroundColor: '#B794F4',
-    marginBottom: 4,
-  },
-  slushiTank: {
-    width: 86,
-    height: 62,
-    borderRadius: 12,
-    backgroundColor: '#E9D5FF',
-    borderWidth: 2,
-    borderColor: '#C4B5FD',
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  slushiWave: {
-    height: 24,
-    backgroundColor: '#A78BFA',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 14,
-  },
-  slushiTap: {
-    marginTop: 6,
-    width: 30,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#A78BFA',
-  },
-  maxVisualShell: {
-    height: 120,
-    borderRadius: 14,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  maxBody: {
-    width: 118,
-    alignItems: 'center',
-  },
-  maxTop: {
-    width: 104,
-    height: 12,
-    borderRadius: 8,
-    backgroundColor: '#818CF8',
-    marginBottom: 4,
-  },
-  maxWindow: {
-    width: 104,
-    height: 58,
-    borderRadius: 12,
-    backgroundColor: '#C7D2FE',
-    borderWidth: 2,
-    borderColor: '#A5B4FC',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  maxIceCube: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 2,
-    borderColor: '#A5B4FC',
-    transform: [{ rotate: '16deg' }],
-  },
-  maxIceCubeSmall: {
-    width: 14,
-    height: 14,
-    borderRadius: 4,
-    backgroundColor: '#E0E7FF',
-    borderWidth: 2,
-    borderColor: '#A5B4FC',
-    transform: [{ rotate: '-12deg' }],
-  },
-  maxFooter: {
-    marginTop: 6,
-    width: 56,
-    height: 14,
-    borderRadius: 8,
-    backgroundColor: '#818CF8',
   },
   machineMetaRow: {
     flexDirection: 'row',
