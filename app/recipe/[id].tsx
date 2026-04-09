@@ -3,13 +3,22 @@ import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { MACHINE_OPTIONS } from '@/app/machine/config';
+import { useMachine } from '@/app/machine/machine-context';
+import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe } from '@/app/types/database';
+import type { MachineId } from '@/app/types/machine';
 
 interface RecipeDetailProps {
   recipe: Recipe;
+  machineId: MachineId;
+  selectedMachineName: string;
+  onMachineSelect: (machineId: MachineId) => void;
 }
 
-function RecipeDetail({ recipe }: RecipeDetailProps) {
+function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect }: RecipeDetailProps) {
+  const scaledProportions = scaleRecipeProportions(recipe, machineId);
+
   return (
     <ScrollView contentContainerStyle={styles.detailContainer}>
       <View style={styles.detailHeader}>
@@ -37,7 +46,27 @@ function RecipeDetail({ recipe }: RecipeDetailProps) {
         <ThemedText type="subtitle" style={styles.sectionTitle}>
           ⚖️ PROPORTIONS
         </ThemedText>
-        {Object.entries(recipe.proportions).map(([key, value]) => (
+        <ThemedText style={styles.machineNote}>
+          Machine active: {selectedMachineName}
+        </ThemedText>
+        <View style={styles.machineSwitcher}>
+          {MACHINE_OPTIONS.map((machine) => {
+            const isSelected = machine.id === machineId;
+
+            return (
+              <Pressable
+                key={machine.id}
+                style={[styles.switcherButton, isSelected && styles.switcherButtonSelected]}
+                onPress={() => onMachineSelect(machine.id)}
+              >
+                <ThemedText style={[styles.switcherText, isSelected && styles.switcherTextSelected]}>
+                  {machine.shortName}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </View>
+        {Object.entries(scaledProportions).map(([key, value]) => (
           <ThemedText key={key} style={styles.listItem}>
             {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
           </ThemedText>
@@ -71,6 +100,7 @@ function RecipeDetail({ recipe }: RecipeDetailProps) {
 
 export default function RecipeScreen() {
   const { recipes } = useRecipes();
+  const { selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
@@ -105,7 +135,12 @@ export default function RecipeScreen() {
           <ThemedText style={styles.backButtonTopText}>←</ThemedText>
         </Pressable>
       </View>
-      <RecipeDetail recipe={recipe} />
+      <RecipeDetail
+        recipe={recipe}
+        machineId={selectedMachineId}
+        selectedMachineName={selectedMachine.name}
+        onMachineSelect={setSelectedMachineId}
+      />
     </ThemedView>
   );
 }
@@ -181,6 +216,37 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#8B5CF6',
     marginBottom: 15,
+  },
+  machineNote: {
+    fontSize: 13,
+    color: '#8E8E93',
+    marginBottom: 10,
+  },
+  machineSwitcher: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 14,
+  },
+  switcherButton: {
+    flex: 1,
+    backgroundColor: '#F5F3FF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  switcherButtonSelected: {
+    backgroundColor: '#8B5CF6',
+    borderColor: '#8B5CF6',
+  },
+  switcherText: {
+    fontSize: 13,
+    color: '#6D28D9',
+    fontWeight: '600',
+  },
+  switcherTextSelected: {
+    color: '#FFFFFF',
   },
   listItem: {
     fontSize: 16,
