@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, ScrollView, View } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
@@ -71,9 +71,9 @@ function RecipeDetail({ recipe }: RecipeDetailProps) {
 
 export default function RecipeScreen() {
   const { recipes } = useRecipes();
-  const { id } = router.useSearchParams();
+  const { id } = useLocalSearchParams<{ id?: string }>();
 
-  const recipe = recipes.find(r => r.id === id);
+  const recipe = recipes.find((r) => r.id === id);
 
   if (!recipe) {
     return (
@@ -103,7 +103,7 @@ export default function RecipeScreen() {
       <View style={styles.backHeader}>
         <Pressable onPress={() => router.back()} style={styles.backButtonTop}>
           <ThemedText style={styles.backButtonTopText}>←</ThemedText>
-        </Jpressable>
+        </Pressable>
       </View>
       <RecipeDetail recipe={recipe} />
     </ThemedView>

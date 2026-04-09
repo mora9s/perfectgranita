@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "PerfectGranita",
+    "slug": "perfectgranita",
+    "scheme": "perfectgranita",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

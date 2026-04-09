@@ -1,13 +1,17 @@
 {
   "name": "perfect-granita",
   "version": "1.0.0",
-  "description": "Un générateur de recettes de granita sicilien en ligne de commande",
-  "main": "src/index.js",
+  "description": "Application mobile PerfectGranita avec CLI historique séparé",
+  "main": "expo-router/entry",
   "bin": {
     "perfectgranita": "./src/index.js"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "cli": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,12 +19,29 @@
     "sicily",
     "dessert",
     "frozen",
-    "cli",
-    "recipe"
+    "recipe",
+    "expo",
+    "react-native"
   ],
   "author": "mora9s",
   "license": "MIT",
   "dependencies": {
-    "commander": "^11.0.0"
-  }
+    "@expo/vector-icons": "^15.0.2",
+    "expo": "^55.0.13",
+    "expo-router": "~55.0.11",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "react-native-web": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.10",
+    "babel-preset-expo": "^55.0.7",
+    "babel-plugin-module-resolver": "^5.0.2",
+    "typescript": "~5.9.2"
+  },
+  "private": true
 }
