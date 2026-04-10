@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
+import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
@@ -12,14 +13,16 @@ import type { MachineId } from '@/app/types/machine';
 interface RecipeCardProps {
   recipe: Recipe;
   machineId: MachineId;
+  colors: ReturnType<typeof useTheme>['colors'];
+  resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
 }
 
-function RecipeCard({ recipe, machineId }: RecipeCardProps) {
+function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
 
   return (
     <Pressable
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
       onPress={() => router.push(`/recipe/${recipe.id}`)}
     >
       <View style={styles.cardContent}>
@@ -27,18 +30,20 @@ function RecipeCard({ recipe, machineId }: RecipeCardProps) {
         <ThemedText type="subtitle" style={styles.recipeName}>
           {recipe.name}
         </ThemedText>
-        <ThemedText style={styles.description} numberOfLines={2}>
+        <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
           {recipe.description}
         </ThemedText>
 
-        <View style={styles.proportionPreview}>
-          <ThemedText style={styles.proportionText}>💧 {scaledProportions.water}</ThemedText>
-          <ThemedText style={styles.proportionText}>🍬 {scaledProportions.sugar}</ThemedText>
-          <ThemedText style={styles.proportionText}>🍓 {scaledProportions.flavor}</ThemedText>
+        <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
+          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>💧 {scaledProportions.water}</ThemedText>
+          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍬 {scaledProportions.sugar}</ThemedText>
+          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍓 {scaledProportions.flavor}</ThemedText>
         </View>
 
         <View style={styles.timeContainer}>
-          <ThemedText style={styles.timeText}>⏱️ {recipe.time.total}</ThemedText>
+          <ThemedText style={[styles.timeText, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]}>
+            ⏱️ {recipe.time.total}
+          </ThemedText>
         </View>
       </View>
     </Pressable>
@@ -48,14 +53,15 @@ function RecipeCard({ recipe, machineId }: RecipeCardProps) {
 export default function ExploreScreen() {
   const { recipes } = useRecipes();
   const { selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
+  const { colors, resolvedTheme } = useTheme();
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title" style={styles.headerTitle}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}>
           🔍 Recettes
         </ThemedText>
-        <ThemedText style={styles.headerSubtitle}>
+        <ThemedText style={[styles.headerSubtitle, { color: colors.textMuted }]}>
           Proportions adaptées à {selectedMachine.name}
         </ThemedText>
 
@@ -66,10 +72,23 @@ export default function ExploreScreen() {
             return (
               <Pressable
                 key={machine.id}
-                style={[styles.switcherButton, isSelected && styles.switcherButtonSelected]}
+                style={[
+                  styles.switcherButton,
+                  {
+                    backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                    borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
+                  },
+                  isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
                 onPress={() => setSelectedMachineId(machine.id)}
               >
-                <ThemedText style={[styles.switcherText, isSelected && styles.switcherTextSelected]}>
+                <ThemedText
+                  style={[
+                    styles.switcherText,
+                    { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
+                    isSelected && { color: colors.primaryText },
+                  ]}
+                >
                   {machine.shortName}
                 </ThemedText>
               </Pressable>
@@ -81,7 +100,9 @@ export default function ExploreScreen() {
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <RecipeCard recipe={item} machineId={selectedMachineId} />}
+        renderItem={({ item }) => (
+          <RecipeCard recipe={item} machineId={selectedMachineId} colors={colors} resolvedTheme={resolvedTheme} />
+        )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
@@ -92,28 +113,23 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
   headerTitle: {
-    color: '#8B5CF6',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
     marginBottom: 12,
   },
   machineSwitcher: {
@@ -122,34 +138,28 @@ const styles = StyleSheet.create({
   },
   switcherButton: {
     flex: 1,
-    backgroundColor: '#F5F3FF',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#DDD6FE',
     paddingVertical: 8,
     alignItems: 'center',
   },
   switcherButtonSelected: {
-    backgroundColor: '#8B5CF6',
-    borderColor: '#8B5CF6',
+    borderWidth: 1,
   },
   switcherText: {
     fontSize: 13,
-    color: '#6D28D9',
     fontWeight: '600',
   },
   switcherTextSelected: {
-    color: '#FFFFFF',
+    fontWeight: '700',
   },
   list: {
     padding: 16,
     paddingBottom: 24,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     marginBottom: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -163,17 +173,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   recipeName: {
-    color: '#1C1C1E',
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: '#8E8E93',
     marginBottom: 12,
     lineHeight: 20,
   },
   proportionPreview: {
-    backgroundColor: '#F9FAFB',
     borderRadius: 10,
     padding: 10,
     gap: 2,
@@ -181,7 +188,6 @@ const styles = StyleSheet.create({
   },
   proportionText: {
     fontSize: 13,
-    color: '#4B5563',
     lineHeight: 18,
   },
   timeContainer: {
@@ -190,7 +196,6 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 12,
-    color: '#8B5CF6',
     fontWeight: '600',
   },
 });

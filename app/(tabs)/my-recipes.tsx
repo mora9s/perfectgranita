@@ -3,12 +3,21 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { useTheme } from '@/app/theme/theme-context';
 import type { Recipe } from '@/app/types/database';
 
-function RecipeCard({ recipe }: { recipe: Recipe }) {
+function RecipeCard({
+  recipe,
+  colors,
+  resolvedTheme,
+}: {
+  recipe: Recipe;
+  colors: ReturnType<typeof useTheme>['colors'];
+  resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
+}) {
   return (
     <Pressable
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
       onPress={() => router.push(`/recipe/${recipe.id}`)}
     >
       <View style={styles.cardContent}>
@@ -16,25 +25,27 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
         <ThemedText type="subtitle" style={styles.recipeName}>
           {recipe.name}
         </ThemedText>
-        <ThemedText style={styles.description} numberOfLines={2}>
+        <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
           {recipe.description}
         </ThemedText>
         <View style={styles.timeContainer}>
-          <ThemedText style={styles.timeText}>⏱️ {recipe.time.total}</ThemedText>
+          <ThemedText style={[styles.timeText, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]}>
+            ⏱️ {recipe.time.total}
+          </ThemedText>
         </View>
       </View>
     </Pressable>
   );
 }
 
-function EmptyState() {
+function EmptyState({ colors }: { colors: ReturnType<typeof useTheme>['colors'] }) {
   return (
     <View style={styles.emptyContainer}>
       <ThemedText style={styles.emptyEmoji}>📖</ThemedText>
       <ThemedText type="subtitle" style={styles.emptyTitle}>
         Aucune recette personnalisée
       </ThemedText>
-      <ThemedText style={styles.emptyDescription}>
+      <ThemedText style={[styles.emptyDescription, { color: colors.textMuted }]}>
         Créez votre première recette de granita personnalisée !
       </ThemedText>
     </View>
@@ -43,35 +54,36 @@ function EmptyState() {
 
 export default function MyRecipesScreen() {
   const { customRecipes } = useRecipes();
+  const { colors, resolvedTheme } = useTheme();
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title" style={styles.headerTitle}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}>
           📖 Mes Recettes
         </ThemedText>
-        <ThemedText style={styles.headerSubtitle}>
+        <ThemedText style={[styles.headerSubtitle, { color: colors.textMuted }]}>
           Vos créations personnalisées
         </ThemedText>
       </View>
 
       {customRecipes.length === 0 ? (
-        <EmptyState />
+        <EmptyState colors={colors} />
       ) : (
         <FlatList
           data={customRecipes}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <RecipeCard recipe={item} />}
+          renderItem={({ item }) => <RecipeCard recipe={item} colors={colors} resolvedTheme={resolvedTheme} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />
       )}
 
       <Pressable
-        style={styles.createButton}
+        style={[styles.createButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
         onPress={() => router.push('/modal')}
       >
-        <ThemedText style={styles.createButtonText}>
+        <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}>
           + Créer une recette
         </ThemedText>
       </Pressable>
@@ -82,38 +94,31 @@ export default function MyRecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
   headerTitle: {
-    color: '#8B5CF6',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
   },
   list: {
     padding: 16,
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     marginBottom: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -127,12 +132,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   recipeName: {
-    color: '#1C1C1E',
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: '#8E8E93',
     marginBottom: 12,
     lineHeight: 20,
   },
@@ -142,7 +145,6 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 12,
-    color: '#8B5CF6',
     fontWeight: '600',
   },
   emptyContainer: {
@@ -156,13 +158,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyTitle: {
-    color: '#1C1C1E',
     textAlign: 'center',
     marginBottom: 8,
   },
   emptyDescription: {
     fontSize: 14,
-    color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -171,18 +171,15 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 20,
     right: 20,
-    backgroundColor: '#8B5CF6',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
   createButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
+import { useTheme } from '@/app/theme/theme-context';
 import type { MachineId } from '@/app/types/machine';
 
 const MACHINE_IMAGES: Record<MachineId, any> = {
@@ -17,6 +18,7 @@ function MachineIllustration({ machineId }: { machineId: MachineId }) {
 
 export default function IndexScreen() {
   const { selectedMachineId, setSelectedMachineId } = useMachine();
+  const { colors, resolvedTheme } = useTheme();
 
   const handleMachineSelect = (machineId: MachineId) => {
     setSelectedMachineId(machineId);
@@ -25,11 +27,11 @@ export default function IndexScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title" style={styles.title}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
           🍧 Choisir votre machine
         </ThemedText>
-        <ThemedText style={styles.subtitle}>
+        <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>
           Sélectionnez une Ninja Slushi pour adapter automatiquement les proportions.
         </ThemedText>
       </View>
@@ -41,7 +43,11 @@ export default function IndexScreen() {
           return (
             <Pressable
               key={machine.id}
-              style={[styles.machineCard, isSelected && styles.machineCardSelected]}
+              style={[
+                styles.machineCard,
+                { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow },
+                isSelected && { borderColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 0.25 },
+              ]}
               onPress={() => handleMachineSelect(machine.id)}
             >
               <View style={styles.cardTopRow}>
@@ -49,8 +55,8 @@ export default function IndexScreen() {
                   {machine.name}
                 </ThemedText>
                 {isSelected ? (
-                  <View style={styles.selectedPill}>
-                    <ThemedText style={styles.selectedPillText}>Active</ThemedText>
+                  <View style={[styles.selectedPill, { backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#EDE9FE' }]}>
+                    <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}>Active</ThemedText>
                   </View>
                 ) : null}
               </View>
@@ -58,12 +64,12 @@ export default function IndexScreen() {
               <MachineIllustration machineId={machine.id} />
 
               <View style={styles.machineMetaRow}>
-                <ThemedText style={styles.machineMeta}>Capacité: {machine.capacityLiters}L</ThemedText>
+                <ThemedText style={[styles.machineMeta, { color: colors.textMuted }]}>Capacité: {machine.capacityLiters}L</ThemedText>
                 <ThemedText style={styles.machineEmoji}>{machine.emoji}</ThemedText>
               </View>
 
-              <View style={styles.chooseButton}>
-                <ThemedText style={styles.chooseButtonText}>Choisir et voir les recettes</ThemedText>
+              <View style={[styles.chooseButton, { backgroundColor: colors.primary }]}>
+                <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}>Choisir et voir les recettes</ThemedText>
               </View>
             </Pressable>
           );
@@ -76,28 +82,23 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
   title: {
-    color: '#8B5CF6',
     marginBottom: 6,
   },
   subtitle: {
     fontSize: 14,
-    color: '#8E8E93',
     lineHeight: 20,
   },
   content: {
@@ -106,21 +107,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   machineCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   machineCardSelected: {
-    borderColor: '#8B5CF6',
-    shadowColor: '#8B5CF6',
-    shadowOpacity: 0.2,
+    borderWidth: 1,
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -129,16 +125,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   machineName: {
-    color: '#1C1C1E',
+    lineHeight: 28,
   },
   selectedPill: {
-    backgroundColor: '#EDE9FE',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
   },
   selectedPillText: {
-    color: '#6D28D9',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -155,19 +149,16 @@ const styles = StyleSheet.create({
   },
   machineMeta: {
     fontSize: 14,
-    color: '#8E8E93',
   },
   machineEmoji: {
     fontSize: 20,
   },
   chooseButton: {
-    backgroundColor: '#8B5CF6',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
   },
   chooseButtonText: {
-    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
   },

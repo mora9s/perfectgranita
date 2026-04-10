@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
+import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
@@ -14,9 +15,18 @@ interface RecipeDetailProps {
   machineId: MachineId;
   selectedMachineName: string;
   onMachineSelect: (machineId: MachineId) => void;
+  colors: ReturnType<typeof useTheme>['colors'];
+  resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
 }
 
-function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect }: RecipeDetailProps) {
+function RecipeDetail({
+  recipe,
+  machineId,
+  selectedMachineName,
+  onMachineSelect,
+  colors,
+  resolvedTheme,
+}: RecipeDetailProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
 
   return (
@@ -26,13 +36,13 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
         <ThemedText type="title" style={styles.detailTitle}>
           {recipe.name}
         </ThemedText>
-        <ThemedText style={styles.detailDescription}>
+        <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>
           {recipe.description}
         </ThemedText>
       </View>
 
-      <View style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>
           📋 INGRÉDIENTS
         </ThemedText>
         {recipe.ingredients.map((item, index) => (
@@ -42,11 +52,11 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
         ))}
       </View>
 
-      <View style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>
           ⚖️ PROPORTIONS
         </ThemedText>
-        <ThemedText style={styles.machineNote}>
+        <ThemedText style={[styles.machineNote, { color: colors.textMuted }]}>
           Machine active: {selectedMachineName}
         </ThemedText>
         <View style={styles.machineSwitcher}>
@@ -56,10 +66,23 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
             return (
               <Pressable
                 key={machine.id}
-                style={[styles.switcherButton, isSelected && styles.switcherButtonSelected]}
+                style={[
+                  styles.switcherButton,
+                  {
+                    backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                    borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
+                  },
+                  isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
                 onPress={() => onMachineSelect(machine.id)}
               >
-                <ThemedText style={[styles.switcherText, isSelected && styles.switcherTextSelected]}>
+                <ThemedText
+                  style={[
+                    styles.switcherText,
+                    { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
+                    isSelected && { color: colors.primaryText },
+                  ]}
+                >
                   {machine.shortName}
                 </ThemedText>
               </Pressable>
@@ -73,8 +96,8 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
         ))}
       </View>
 
-      <View style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>
           📝 INSTRUCTIONS
         </ThemedText>
         {recipe.instructions.map((item, index) => (
@@ -84,8 +107,8 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
         ))}
       </View>
 
-      <View style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>
           ⏱️ TEMPS
         </ThemedText>
         {Object.entries(recipe.time).map(([key, value]) => (
@@ -101,6 +124,7 @@ function RecipeDetail({ recipe, machineId, selectedMachineName, onMachineSelect 
 export default function RecipeScreen() {
   const { recipes } = useRecipes();
   const { selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
+  const { colors, resolvedTheme } = useTheme();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
@@ -110,12 +134,12 @@ export default function RecipeScreen() {
       <ThemedView style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.errorContainer}>
-          <ThemedText type="title" style={styles.errorTitle}>Recette introuvable</ThemedText>
-          <ThemedText style={styles.errorDescription}>
+          <ThemedText type="title" style={[styles.errorTitle, { color: colors.danger }]}>Recette introuvable</ThemedText>
+          <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}>
             La recette que vous recherchez n'existe pas.
           </ThemedText>
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <ThemedText style={styles.backButtonText}>Retour</ThemedText>
+          <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.primary }]}>
+            <ThemedText style={[styles.backButtonText, { color: colors.primaryText }]}>Retour</ThemedText>
           </Pressable>
         </View>
       </ThemedView>
@@ -131,8 +155,17 @@ export default function RecipeScreen() {
         }}
       />
       <View style={styles.backHeader}>
-        <Pressable onPress={() => router.back()} style={styles.backButtonTop}>
-          <ThemedText style={styles.backButtonTopText}>←</ThemedText>
+        <Pressable
+          onPress={() => router.back()}
+          style={[
+            styles.backButtonTop,
+            {
+              backgroundColor: resolvedTheme === 'dark' ? 'rgba(26,29,36,0.85)' : 'rgba(255,255,255,0.85)',
+              shadowColor: colors.shadow,
+            },
+          ]}
+        >
+          <ThemedText style={[styles.backButtonTopText, { color: colors.primary }]}>←</ThemedText>
         </Pressable>
       </View>
       <RecipeDetail
@@ -140,6 +173,8 @@ export default function RecipeScreen() {
         machineId={selectedMachineId}
         selectedMachineName={selectedMachine.name}
         onMachineSelect={setSelectedMachineId}
+        colors={colors}
+        resolvedTheme={resolvedTheme}
       />
     </ThemedView>
   );
@@ -148,7 +183,6 @@ export default function RecipeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   backHeader: {
     position: 'absolute',
@@ -164,10 +198,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -175,7 +207,6 @@ const styles = StyleSheet.create({
   },
   backButtonTopText: {
     fontSize: 20,
-    color: '#8B5CF6',
     fontWeight: 'bold',
   },
   detailContainer: {
@@ -192,34 +223,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   detailTitle: {
-    color: '#1C1C1E',
     marginBottom: 8,
     textAlign: 'center',
   },
   detailDescription: {
     fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 24,
   },
   section: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   sectionTitle: {
-    color: '#8B5CF6',
     marginBottom: 15,
   },
   machineNote: {
     fontSize: 13,
-    color: '#8E8E93',
     marginBottom: 10,
   },
   machineSwitcher: {
@@ -229,28 +254,23 @@ const styles = StyleSheet.create({
   },
   switcherButton: {
     flex: 1,
-    backgroundColor: '#F5F3FF',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#DDD6FE',
     paddingVertical: 8,
     alignItems: 'center',
   },
   switcherButtonSelected: {
-    backgroundColor: '#8B5CF6',
-    borderColor: '#8B5CF6',
+    borderWidth: 1,
   },
   switcherText: {
     fontSize: 13,
-    color: '#6D28D9',
     fontWeight: '600',
   },
   switcherTextSelected: {
-    color: '#FFFFFF',
+    fontWeight: '700',
   },
   listItem: {
     fontSize: 16,
-    color: '#1C1C1E',
     marginBottom: 8,
     lineHeight: 24,
   },
@@ -261,24 +281,20 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorTitle: {
-    color: '#FF3B30',
     marginBottom: 10,
   },
   errorDescription: {
     fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: '#8B5CF6',
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 24,
     marginTop: 20,
   },
   backButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

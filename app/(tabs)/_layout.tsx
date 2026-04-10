@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
+import { useTheme } from '@/app/theme/theme-context';
 
 function TabBarIcon({
   name,
@@ -12,18 +13,21 @@ function TabBarIcon({
 }
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#8B5CF6',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.tabInactive,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 0,
+          backgroundColor: colors.surface,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
           elevation: 8,
-          shadowColor: '#000',
+          shadowColor: colors.shadow,
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
+          shadowOpacity: 0.2,
           shadowRadius: 4,
         },
         headerShown: false,
