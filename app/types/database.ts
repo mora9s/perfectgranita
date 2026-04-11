@@ -1,7 +1,11 @@
+import type { MachineId } from '@/app/types/machine';
+
 export interface RecipeIngredient {
   quantity: string;
   item: string;
   note?: string;
+  volumesMl?: Partial<Record<MachineId, number>>;
+  abvPercent?: number;
 }
 
 export interface RecipeMachineGuidance {
@@ -13,6 +17,19 @@ export interface RecipeDrinkVisual {
   emoji: string;
   title: string;
   subtitle: string;
+}
+
+export interface RecipeMedia {
+  image?: string;
+  imageAlt?: string;
+}
+
+export interface RecipeMachineProfile {
+  machineProgram: string;
+  fillVolumeMl: number;
+  estimatedRunTime: string;
+  estimatedAbvPercent?: number;
+  steps: string[];
 }
 
 export interface Recipe {
@@ -32,6 +49,8 @@ export interface Recipe {
   tips?: string[];
   notes?: string[];
   machineGuidance?: RecipeMachineGuidance;
+  machineProfiles?: Partial<Record<MachineId, RecipeMachineProfile>>;
+  media?: RecipeMedia;
   drinkVisual?: RecipeDrinkVisual;
   instructions: string[];
   time: {

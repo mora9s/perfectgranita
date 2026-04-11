@@ -7,7 +7,7 @@ import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
-import type { Recipe } from '@/app/types/database';
+import type { Recipe, RecipeIngredient } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
 
 interface RecipeDetailProps {
@@ -35,9 +35,21 @@ function RecipeDetail({
   colors,
   resolvedTheme,
 }: RecipeDetailProps) {
+  const machineProfile = recipe.machineProfiles?.[machineId];
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
-  const ingredientRows: Array<{ quantity: string; item: string; note?: string }> =
+  const baseIngredientRows: RecipeIngredient[] =
     recipe.ingredientItems ?? recipe.ingredients.map((entry) => ({ quantity: '', item: entry }));
+
+  const ingredientRows: Array<{ quantity: string; item: string; note?: string }> = baseIngredientRows.map((entry) => {
+    const perMachineVolume = entry.volumesMl?.[machineId];
+    if (typeof perMachineVolume === 'number') {
+      return {
+        ...entry,
+        quantity: `${perMachineVolume} ml`,
+      };
+    }
+    return entry;
+  });
 
   const beforeStartSteps =
     recipe.machineGuidance?.beforeStart ?? [
@@ -124,6 +136,17 @@ function RecipeDetail({
           Machine active: {selectedMachineName} ({selectedMachineCapacityLiters}L)
         </ThemedText>
 
+        {machineProfile ? (
+          <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}>
+            <ThemedText style={styles.machineBlockTitle}>Programme: {machineProfile.machineProgram}</ThemedText>
+            <ThemedText style={styles.stepLine}>Volume cible: {machineProfile.fillVolumeMl} ml</ThemedText>
+            {typeof machineProfile.estimatedAbvPercent === 'number' ? (
+              <ThemedText style={styles.stepLine}>ABV estime: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
+            ) : null}
+            <ThemedText style={styles.stepLine}>Temps machine: {machineProfile.estimatedRunTime}</ThemedText>
+          </View>
+        ) : null}
+
         <View style={styles.machineSwitcher}>
           {MACHINE_OPTIONS.map((machine) => {
             const isSelected = machine.id === machineId;
@@ -155,32 +178,45 @@ function RecipeDetail({
           })}
         </View>
 
-        <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
-          <ThemedText style={styles.machineBlockTitle}>A preparer avant de verser</ThemedText>
-          {beforeStartSteps.map((step, index) => (
-            <ThemedText key={`before-${index}`} style={styles.stepLine}>
-              {index + 1}. {step}
-            </ThemedText>
-          ))}
-        </View>
-
-        <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
-          <ThemedText style={styles.machineBlockTitle}>Ajouter / Verser / Lancer</ThemedText>
-          {pourAndRunSteps.map((step, index) => (
-            <ThemedText key={`pour-${index}`} style={styles.stepLine}>
-              {index + 1}. {step}
-            </ThemedText>
-          ))}
-        </View>
-
-        <View style={styles.proportionList}>
-          {(Object.keys(scaledProportions) as Array<keyof typeof scaledProportions>).map((key) => (
-            <View key={key} style={[styles.proportionRow, { borderBottomColor: colors.border }]}> 
-              <ThemedText style={[styles.proportionLabel, { color: colors.textMuted }]}>{PROPORTION_LABELS[key]}</ThemedText>
-              <ThemedText style={styles.proportionValue}>{scaledProportions[key]}</ThemedText>
+        {machineProfile ? (
+          <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
+            <ThemedText style={styles.machineBlockTitle}>Etapes machine ({selectedMachineName})</ThemedText>
+            {machineProfile.steps.map((step, index) => (
+              <ThemedText key={`machine-profile-step-${index}`} style={styles.stepLine}>
+                {index + 1}. {step}
+              </ThemedText>
+            ))}
+          </View>
+        ) : (
+          <>
+            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
+              <ThemedText style={styles.machineBlockTitle}>A preparer avant de verser</ThemedText>
+              {beforeStartSteps.map((step, index) => (
+                <ThemedText key={`before-${index}`} style={styles.stepLine}>
+                  {index + 1}. {step}
+                </ThemedText>
+              ))}
             </View>
-          ))}
-        </View>
+
+            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
+              <ThemedText style={styles.machineBlockTitle}>Ajouter / Verser / Lancer</ThemedText>
+              {pourAndRunSteps.map((step, index) => (
+                <ThemedText key={`pour-${index}`} style={styles.stepLine}>
+                  {index + 1}. {step}
+                </ThemedText>
+              ))}
+            </View>
+
+            <View style={styles.proportionList}>
+              {(Object.keys(scaledProportions) as Array<keyof typeof scaledProportions>).map((key) => (
+                <View key={key} style={[styles.proportionRow, { borderBottomColor: colors.border }]}> 
+                  <ThemedText style={[styles.proportionLabel, { color: colors.textMuted }]}>{PROPORTION_LABELS[key]}</ThemedText>
+                  <ThemedText style={styles.proportionValue}>{scaledProportions[key]}</ThemedText>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </View>
 
       <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
@@ -420,6 +456,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     marginBottom: 14,
+  },
+  machineProfileSummary: {
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    gap: 2,
   },
   switcherButton: {
     flex: 1,

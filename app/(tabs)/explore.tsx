@@ -19,6 +19,7 @@ interface RecipeCardProps {
 
 function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
+  const machineProfile = recipe.machineProfiles?.[machineId];
 
   return (
     <Pressable
@@ -34,11 +35,25 @@ function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProp
           {recipe.description}
         </ThemedText>
 
-        <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
-          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>💧 {scaledProportions.water}</ThemedText>
-          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍬 {scaledProportions.sugar}</ThemedText>
-          <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍓 {scaledProportions.flavor}</ThemedText>
-        </View>
+        {machineProfile ? (
+          <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
+              ⚙️ {machineProfile.machineProgram}
+            </ThemedText>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
+              🧪 ABV ~{machineProfile.estimatedAbvPercent ?? '?'}%
+            </ThemedText>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
+              📦 {machineProfile.fillVolumeMl} ml
+            </ThemedText>
+          </View>
+        ) : (
+          <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>💧 {scaledProportions.water}</ThemedText>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍬 {scaledProportions.sugar}</ThemedText>
+            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍓 {scaledProportions.flavor}</ThemedText>
+          </View>
+        )}
 
         <View style={styles.timeContainer}>
           <ThemedText style={[styles.timeText, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]}>
