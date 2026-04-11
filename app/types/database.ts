@@ -20,7 +20,7 @@ export interface RecipeDrinkVisual {
 }
 
 export interface RecipeMedia {
-  image?: string;
+  image?: any;
   imageAlt?: string;
 }
 

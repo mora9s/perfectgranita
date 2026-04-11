@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -27,7 +27,12 @@ function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProp
       onPress={() => router.push(`/recipe/${recipe.id}`)}
     >
       <View style={styles.cardContent}>
-        <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
+        <View style={styles.cardTopRow}>
+          <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
+          {recipe.media?.image ? (
+            <Image source={recipe.media.image} style={styles.cardThumbnail} resizeMode="cover" />
+          ) : null}
+        </View>
         <ThemedText type="subtitle" style={styles.recipeName}>
           {recipe.name}
         </ThemedText>
@@ -183,9 +188,19 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 20,
   },
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
   emoji: {
     fontSize: 40,
-    marginBottom: 8,
+  },
+  cardThumbnail: {
+    width: 64,
+    height: 64,
+    borderRadius: 14,
   },
   recipeName: {
     marginBottom: 4,

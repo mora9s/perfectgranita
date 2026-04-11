@@ -110,6 +110,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Tequila + liqueur orange + citron vert, diluee pour texture slush stable.',
     abv: 8.3,
     garnish: 'Bord sel + quartier de citron vert',
+    image: require('@/assets/images/margarita-frozen.jpg'),
     ingredients: [
       ingredient('Tequila blanco (40%)', 260, 455, { abvPercent: 40 }),
       ingredient('Liqueur orange type triple sec (40%)', 130, 230, { abvPercent: 40 }),

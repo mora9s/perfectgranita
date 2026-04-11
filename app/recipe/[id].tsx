@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, ScrollView, View } from 'react-native';
+import { Image, Pressable, StyleSheet, ScrollView, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -75,6 +75,9 @@ function RecipeDetail({
           },
         ]}
       >
+        {recipe.media?.image ? (
+          <Image source={recipe.media.image} style={styles.heroImage} resizeMode="cover" />
+        ) : null}
         <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText>
         <ThemedText type="title" style={styles.detailTitle}>
           {recipe.name}
@@ -362,6 +365,12 @@ const styles = StyleSheet.create({
   detailEmoji: {
     fontSize: 64,
     marginBottom: 8,
+  },
+  heroImage: {
+    width: '100%',
+    height: 220,
+    borderRadius: 16,
+    marginBottom: 16,
   },
   detailTitle: {
     marginBottom: 8,
