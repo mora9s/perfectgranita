@@ -32,6 +32,16 @@ export interface RecipeMachineProfile {
   steps: string[];
 }
 
+export type RecipeAlcoholCategory =
+  | 'tequila'
+  | 'rhum'
+  | 'vodka'
+  | 'gin'
+  | 'aperol-prosecco'
+  | 'vin'
+  | 'mixte'
+  | 'autre';
+
 export interface Recipe {
   id: string;
   name: string;
@@ -46,6 +56,8 @@ export interface Recipe {
   };
   serves?: string;
   garnish?: string;
+  alcoholCategory?: RecipeAlcoholCategory;
+  usesMonin?: boolean;
   tips?: string[];
   notes?: string[];
   machineGuidance?: RecipeMachineGuidance;

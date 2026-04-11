@@ -1,4 +1,4 @@
-import type { Recipe, RecipeIngredient } from '@/app/types/database';
+import type { Recipe, RecipeAlcoholCategory, RecipeIngredient } from '@/app/types/database';
 
 const DEFAULT_SLUSHI_STEPS: string[] = [
   'Refroidir tous les liquides entre 4C et 8C avant de melanger.',
@@ -63,8 +63,10 @@ function cocktailRecipe(input: {
   description: string;
   abv: number;
   garnish: string;
+  alcoholCategory: RecipeAlcoholCategory;
+  usesMonin?: boolean;
   notes?: string[];
-  image?: string;
+  image?: any;
   ingredients: RecipeIngredient[];
 }): Recipe {
   return {
@@ -81,6 +83,8 @@ function cocktailRecipe(input: {
     },
     serves: 'Slushi: 7-8 verres | Slushi Max: ~12 verres',
     garnish: input.garnish,
+    alcoholCategory: input.alcoholCategory,
+    usesMonin: input.usesMonin ?? false,
     notes: input.notes,
     machineProfiles: machineProfiles(input.abv),
     media: {
@@ -110,6 +114,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Tequila + liqueur orange + citron vert, diluee pour texture slush stable.',
     abv: 8.3,
     garnish: 'Bord sel + quartier de citron vert',
+    alcoholCategory: 'tequila',
     image: require('@/assets/images/margarita-frozen.jpg'),
     ingredients: [
       ingredient('Tequila blanco (40%)', 260, 455, { abvPercent: 40 }),
@@ -126,6 +131,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Rhum blanc, citron vert et sirop, avec dilution controlee.',
     abv: 7.6,
     garnish: 'Zeste de citron vert',
+    alcoholCategory: 'rhum',
     ingredients: [
       ingredient('Rhum blanc (40%)', 360, 630, { abvPercent: 40 }),
       ingredient('Jus de citron vert', 260, 455),
@@ -140,6 +146,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Version hard lemonade avec limonade non light.',
     abv: 7.6,
     garnish: 'Rondelle de citron',
+    alcoholCategory: 'vodka',
     ingredients: [
       ingredient('Vodka (40%)', 360, 630, { abvPercent: 40 }),
       ingredient('Jus de citron jaune', 180, 315),
@@ -154,6 +161,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Vodka, ginger beer et citron vert en version granita.',
     abv: 6.8,
     garnish: 'Menthe + tranche de citron vert',
+    alcoholCategory: 'vodka',
     ingredients: [
       ingredient('Vodka (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Ginger beer non light', 1100, 1925),
@@ -169,6 +177,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Profil sec et herbacé, legerement adouci.',
     abv: 6.8,
     garnish: 'Zeste de citron vert ou pamplemousse',
+    alcoholCategory: 'gin',
     ingredients: [
       ingredient('Gin (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Tonic non light', 1250, 2190),
@@ -184,6 +193,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Tequila et pamplemousse, structure diluee pour machine.',
     abv: 6.8,
     garnish: 'Tranche de pamplemousse, bord sel optionnel',
+    alcoholCategory: 'tequila',
     ingredients: [
       ingredient('Tequila (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Jus de pamplemousse', 900, 1575),
@@ -199,6 +209,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Version coco/ananas sans sirop Monin.',
     abv: 6.3,
     garnish: 'Ananas frais (hors machine)',
+    alcoholCategory: 'rhum',
     ingredients: [
       ingredient('Rhum blanc (40%)', 300, 525, { abvPercent: 40 }),
       ingredient('Jus d ananas', 900, 1575),
@@ -214,6 +225,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Vodka + liqueur de cafe + cafe froid.',
     abv: 8.3,
     garnish: 'Poudre cacao ou grains de cafe',
+    alcoholCategory: 'vodka',
     ingredients: [
       ingredient('Vodka (40%)', 280, 490, { abvPercent: 40 }),
       ingredient('Liqueur de cafe (20%)', 220, 385, { abvPercent: 20 }),
@@ -229,6 +241,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Aperol, prosecco et orange, ajuste pour texture granita.',
     abv: 6.7,
     garnish: 'Tranche d orange',
+    alcoholCategory: 'aperol-prosecco',
     notes: ['ABV calcule avec Aperol 12,5% et Prosecco 11%.'],
     ingredients: [
       ingredient('Aperol (12.5%)', 400, 700, { abvPercent: 12.5 }),
@@ -245,6 +258,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Tequila, orange et grenadine.',
     abv: 6.8,
     garnish: 'Quartier d orange',
+    alcoholCategory: 'tequila',
     ingredients: [
       ingredient('Tequila (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Jus d orange', 950, 1665),
@@ -259,6 +273,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Vodka, liqueur orange, cranberry et citron vert.',
     abv: 8.3,
     garnish: 'Zeste d orange',
+    alcoholCategory: 'mixte',
     ingredients: [
       ingredient('Vodka (40%)', 260, 455, { abvPercent: 40 }),
       ingredient('Liqueur orange (40%)', 130, 230, { abvPercent: 40 }),
@@ -275,6 +290,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Rhum et cola non light, simple et efficace.',
     abv: 6.8,
     garnish: 'Citron vert + cerise cocktail optionnelle',
+    alcoholCategory: 'rhum',
     ingredients: [
       ingredient('Rhum (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Cola non light', 1200, 2100),
@@ -290,6 +306,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Version co-brandee Ninja x Monin.',
     abv: 6.0,
     garnish: 'Ananas + coco rapee (hors machine)',
+    alcoholCategory: 'rhum',
+    usesMonin: true,
     ingredients: [
       ingredient('Sirop Monin Pina Colada', 189, 330),
       ingredient('Jus d ananas', 945, 1655),
@@ -304,6 +322,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Variante Monin sans lait de coco.',
     abv: 6.0,
     garnish: 'Ananas',
+    alcoholCategory: 'rhum',
+    usesMonin: true,
     ingredients: [
       ingredient('Sirop Monin Pina Colada', 284, 500),
       ingredient('Jus d ananas', 1323, 2315),
@@ -317,6 +337,7 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Fraise des bois + Aperol + Prosecco.',
     abv: 5.8,
     garnish: 'Tranche d orange',
+    alcoholCategory: 'aperol-prosecco',
     notes: ['Base inspiree recette officielle Ninja x Monin.'],
     ingredients: [
       ingredient('Sirop Monin Fraise des bois', 284, 500),
@@ -333,6 +354,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Fraise des bois et vin rose (ABV dependant du vin).',
     abv: 7.8,
     garnish: 'Fraise + citron vert (hors machine)',
+    alcoholCategory: 'vin',
+    usesMonin: true,
     notes: [
       'ABV reel dependant du degre du vin rose utilise.',
       'Approximation rapport: ABV final ~= 0,65 x ABV du vin rose.'
@@ -350,6 +373,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Cola + Popcorn Monin avec rhum blanc.',
     abv: 6.8,
     garnish: 'Citron vert + popcorn (hors machine)',
+    alcoholCategory: 'rhum',
+    usesMonin: true,
     ingredients: [
       ingredient('Sirop Monin Cola', 250, 440),
       ingredient('Sirop Monin Popcorn', 80, 140),
@@ -364,6 +389,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Cloudy Lemonade + Bubble Gum + vodka.',
     abv: 6.8,
     garnish: 'Citron jaune',
+    alcoholCategory: 'vodka',
+    usesMonin: true,
     ingredients: [
       ingredient('Concentre Monin Cloudy Lemonade', 250, 440),
       ingredient('Sirop Monin Bubble Gum', 80, 140),
@@ -378,6 +405,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'The framboise, cassis, pomme verte et gin.',
     abv: 6.8,
     garnish: 'Framboise + citron vert',
+    alcoholCategory: 'gin',
+    usesMonin: true,
     ingredients: [
       ingredient('Concentre Monin The Framboise', 190, 335),
       ingredient('Fruit Monin Cassis', 190, 335),
@@ -393,6 +422,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Concombre, fleur de sureau, jus de pomme et gin.',
     abv: 6.8,
     garnish: 'Ruban de concombre',
+    alcoholCategory: 'gin',
+    usesMonin: true,
     ingredients: [
       ingredient('Pure by Monin Concombre', 160, 280),
       ingredient('Sirop Monin Fleur de sureau', 160, 280),
@@ -408,6 +439,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Passion, gingembre et ananas avec rhum blanc.',
     abv: 6.8,
     garnish: 'Tete de menthe + citron vert',
+    alcoholCategory: 'rhum',
+    usesMonin: true,
     ingredients: [
       ingredient('Sirop Monin Passion', 120, 210),
       ingredient('Concentre Monin Gingembre', 40, 70),
@@ -422,6 +455,8 @@ export const importedCocktailRecipes: Recipe[] = [
     description: 'Orange Spritz Monin + Fraise des bois + vodka.',
     abv: 6.8,
     garnish: 'Orange + fraise',
+    alcoholCategory: 'vodka',
+    usesMonin: true,
     ingredients: [
       ingredient('Sirop Monin Orange Spritz', 250, 440),
       ingredient('Sirop Monin Fraise des bois', 170, 300),

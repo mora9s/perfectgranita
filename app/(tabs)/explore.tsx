@@ -1,4 +1,5 @@
 import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -7,8 +8,21 @@ import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
-import type { Recipe } from '@/app/types/database';
+import type { Recipe, RecipeAlcoholCategory } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
+
+const ALCOHOL_LABELS: Record<RecipeAlcoholCategory, string> = {
+  tequila: 'Tequila',
+  rhum: 'Rhum',
+  vodka: 'Vodka',
+  gin: 'Gin',
+  'aperol-prosecco': 'Spritz',
+  vin: 'Vin',
+  mixte: 'Mixte',
+  autre: 'Autre',
+};
+
+type MoninFilter = 'all' | 'monin' | 'non-monin';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -74,6 +88,30 @@ export default function ExploreScreen() {
   const { recipes } = useRecipes();
   const { selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
+  const [activeAlcohol, setActiveAlcohol] = useState<RecipeAlcoholCategory | 'all'>('all');
+  const [activeMonin, setActiveMonin] = useState<MoninFilter>('all');
+
+  const alcoholOptions = useMemo(() => {
+    const values = Array.from(
+      new Set(recipes.map((recipe) => recipe.alcoholCategory).filter(Boolean))
+    ) as RecipeAlcoholCategory[];
+
+    return values;
+  }, [recipes]);
+
+  const filteredRecipes = useMemo(() => {
+    return recipes.filter((recipe) => {
+      const alcoholMatch = activeAlcohol === 'all' || recipe.alcoholCategory === activeAlcohol;
+      const moninMatch =
+        activeMonin === 'all' ||
+        (activeMonin === 'monin' && recipe.usesMonin === true) ||
+        (activeMonin === 'non-monin' && recipe.usesMonin !== true);
+
+      return alcoholMatch && moninMatch;
+    });
+  }, [activeAlcohol, activeMonin, recipes]);
+
+  const filtersActive = activeAlcohol !== 'all' || activeMonin !== 'all';
 
   return (
     <ThemedView style={styles.container}>
@@ -115,16 +153,98 @@ export default function ExploreScreen() {
             );
           })}
         </View>
+
+        <View style={styles.filtersSection}>
+          <View style={styles.filtersHeaderRow}>
+            <ThemedText type="defaultSemiBold">Filtres</ThemedText>
+            {filtersActive ? (
+              <Pressable onPress={() => {
+                setActiveAlcohol('all');
+                setActiveMonin('all');
+              }}>
+                <ThemedText type="link">Réinitialiser</ThemedText>
+              </Pressable>
+            ) : null}
+          </View>
+
+          <View style={styles.filterGroup}>
+            <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Alcool</ThemedText>
+            <View style={styles.filterChipsRow}>
+              <Pressable
+                style={[
+                  styles.filterChip,
+                  { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                  activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
+                onPress={() => setActiveAlcohol('all')}
+              >
+                <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}>Tous</ThemedText>
+              </Pressable>
+              {alcoholOptions.map((alcohol) => {
+                const selected = activeAlcohol === alcohol;
+                return (
+                  <Pressable
+                    key={alcohol}
+                    style={[
+                      styles.filterChip,
+                      { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                      selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    ]}
+                    onPress={() => setActiveAlcohol(alcohol)}
+                  >
+                    <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
+                      {ALCOHOL_LABELS[alcohol]}
+                    </ThemedText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.filterGroup}>
+            <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Monin</ThemedText>
+            <View style={styles.filterChipsRow}>
+              {[
+                { key: 'all', label: 'Tous' },
+                { key: 'monin', label: 'Monin' },
+                { key: 'non-monin', label: 'Sans Monin' },
+              ].map((option) => {
+                const selected = activeMonin === option.key;
+                return (
+                  <Pressable
+                    key={option.key}
+                    style={[
+                      styles.filterChip,
+                      { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                      selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    ]}
+                    onPress={() => setActiveMonin(option.key as MoninFilter)}
+                  >
+                    <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
+                      {option.label}
+                    </ThemedText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </View>
       </View>
 
       <FlatList
-        data={recipes}
+        data={filteredRecipes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <RecipeCard recipe={item} machineId={selectedMachineId} colors={colors} resolvedTheme={resolvedTheme} />
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <ThemedText type="subtitle">Aucune recette</ThemedText>
+            <ThemedText style={[styles.emptyStateText, { color: colors.textMuted }]}>Ajuste ou réinitialise les filtres pour voir plus de recettes.</ThemedText>
+          </View>
+        }
       />
     </ThemedView>
   );
@@ -155,6 +275,37 @@ const styles = StyleSheet.create({
   machineSwitcher: {
     flexDirection: 'row',
     gap: 8,
+  },
+  filtersSection: {
+    marginTop: 14,
+    gap: 12,
+  },
+  filtersHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filterGroup: {
+    gap: 6,
+  },
+  filterLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  filterChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  filterChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  filterChipText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   switcherButton: {
     flex: 1,
@@ -227,5 +378,15 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  emptyState: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
   },
 });
