@@ -90,6 +90,7 @@ export default function ExploreScreen() {
   const { colors, resolvedTheme } = useTheme();
   const [activeAlcohol, setActiveAlcohol] = useState<RecipeAlcoholCategory | 'all'>('all');
   const [activeMonin, setActiveMonin] = useState<MoninFilter>('all');
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   const alcoholOptions = useMemo(() => {
     const values = Array.from(
@@ -156,7 +157,12 @@ export default function ExploreScreen() {
 
         <View style={styles.filtersSection}>
           <View style={styles.filtersHeaderRow}>
-            <ThemedText type="defaultSemiBold">Filtres</ThemedText>
+            <Pressable style={styles.filtersToggle} onPress={() => setFiltersExpanded((value) => !value)}>
+              <ThemedText type="defaultSemiBold">Filtres</ThemedText>
+              <ThemedText style={[styles.filtersToggleIcon, { color: colors.textMuted }]}>
+                {filtersExpanded ? '▴' : '▾'}
+              </ThemedText>
+            </Pressable>
             {filtersActive ? (
               <Pressable onPress={() => {
                 setActiveAlcohol('all');
@@ -167,67 +173,77 @@ export default function ExploreScreen() {
             ) : null}
           </View>
 
-          <View style={styles.filterGroup}>
-            <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Alcool</ThemedText>
-            <View style={styles.filterChipsRow}>
-              <Pressable
-                style={[
-                  styles.filterChip,
-                  { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                  activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
-                ]}
-                onPress={() => setActiveAlcohol('all')}
-              >
-                <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}>Tous</ThemedText>
-              </Pressable>
-              {alcoholOptions.map((alcohol) => {
-                const selected = activeAlcohol === alcohol;
-                return (
-                  <Pressable
-                    key={alcohol}
-                    style={[
-                      styles.filterChip,
-                      { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                      selected && { backgroundColor: colors.primary, borderColor: colors.primary },
-                    ]}
-                    onPress={() => setActiveAlcohol(alcohol)}
-                  >
-                    <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
-                      {ALCOHOL_LABELS[alcohol]}
-                    </ThemedText>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
+          {!filtersExpanded ? (
+            <ThemedText style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}>
+              {filtersActive ? 'Filtres actifs, touche pour modifier.' : 'Touche pour filtrer par alcool ou Monin.'}
+            </ThemedText>
+          ) : null}
 
-          <View style={styles.filterGroup}>
-            <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Monin</ThemedText>
-            <View style={styles.filterChipsRow}>
-              {[
-                { key: 'all', label: 'Tous' },
-                { key: 'monin', label: 'Monin' },
-                { key: 'non-monin', label: 'Sans Monin' },
-              ].map((option) => {
-                const selected = activeMonin === option.key;
-                return (
+          {filtersExpanded ? (
+            <>
+              <View style={styles.filterGroup}>
+                <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Alcool</ThemedText>
+                <View style={styles.filterChipsRow}>
                   <Pressable
-                    key={option.key}
                     style={[
                       styles.filterChip,
                       { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                      selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                      activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
                     ]}
-                    onPress={() => setActiveMonin(option.key as MoninFilter)}
+                    onPress={() => setActiveAlcohol('all')}
                   >
-                    <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
-                      {option.label}
-                    </ThemedText>
+                    <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}>Tous</ThemedText>
                   </Pressable>
-                );
-              })}
-            </View>
-          </View>
+                  {alcoholOptions.map((alcohol) => {
+                    const selected = activeAlcohol === alcohol;
+                    return (
+                      <Pressable
+                        key={alcohol}
+                        style={[
+                          styles.filterChip,
+                          { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                          selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                        ]}
+                        onPress={() => setActiveAlcohol(alcohol)}
+                      >
+                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
+                          {ALCOHOL_LABELS[alcohol]}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View style={styles.filterGroup}>
+                <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>Monin</ThemedText>
+                <View style={styles.filterChipsRow}>
+                  {[
+                    { key: 'all', label: 'Tous' },
+                    { key: 'monin', label: 'Monin' },
+                    { key: 'non-monin', label: 'Sans Monin' },
+                  ].map((option) => {
+                    const selected = activeMonin === option.key;
+                    return (
+                      <Pressable
+                        key={option.key}
+                        style={[
+                          styles.filterChip,
+                          { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                          selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                        ]}
+                        onPress={() => setActiveMonin(option.key as MoninFilter)}
+                      >
+                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
+                          {option.label}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            </>
+          ) : null}
         </View>
       </View>
 
@@ -284,6 +300,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
+  },
+  filtersToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  filtersToggleIcon: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  filtersCollapsedHint: {
+    fontSize: 13,
+    lineHeight: 18,
   },
   filterGroup: {
     gap: 6,
