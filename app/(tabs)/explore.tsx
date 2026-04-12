@@ -34,6 +34,8 @@ interface RecipeCardProps {
 function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const machineProfile = recipe.machineProfiles?.[machineId];
+  const recipeImage = recipe.media?.image;
+  const hasImage = Boolean(recipeImage);
 
   return (
     <Pressable
@@ -41,43 +43,45 @@ function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProp
       onPress={() => router.push(`/recipe/${recipe.id}`)}
     >
       <View style={styles.cardContent}>
-        <View style={styles.cardTopRow}>
-          <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
-          {recipe.media?.image ? (
-            <Image source={recipe.media.image} style={styles.cardThumbnail} resizeMode="cover" />
-          ) : null}
-        </View>
-        <ThemedText type="subtitle" style={styles.recipeName}>
-          {recipe.name}
-        </ThemedText>
-        <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
-          {recipe.description}
-        </ThemedText>
-
-        {machineProfile ? (
-          <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
-              ⚙️ {machineProfile.machineProgram}
-            </ThemedText>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
-              🧪 ABV ~{machineProfile.estimatedAbvPercent ?? '?'}%
-            </ThemedText>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>
-              📦 {machineProfile.fillVolumeMl} ml
-            </ThemedText>
+        <View style={styles.cardLayout}>
+          <View
+            style={[
+              styles.visualWrap,
+              {
+                backgroundColor: hasImage ? colors.surfaceSoft : resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            {recipeImage ? (
+              <Image source={recipeImage} style={styles.cardThumbnail} resizeMode="cover" />
+            ) : (
+              <ThemedText style={styles.visualFallback}>{recipe.emoji}</ThemedText>
+            )}
           </View>
-        ) : (
-          <View style={[styles.proportionPreview, { backgroundColor: colors.surfaceSoft }]}>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>💧 {scaledProportions.water}</ThemedText>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍬 {scaledProportions.sugar}</ThemedText>
-            <ThemedText style={[styles.proportionText, { color: colors.textMuted }]}>🍓 {scaledProportions.flavor}</ThemedText>
-          </View>
-        )}
 
-        <View style={styles.timeContainer}>
-          <ThemedText style={[styles.timeText, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]}>
-            ⏱️ {recipe.time.total}
-          </ThemedText>
+          <View style={styles.cardMainContent}>
+            <ThemedText type="subtitle" style={styles.recipeName} numberOfLines={2}>
+              {recipe.name}
+            </ThemedText>
+            <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
+              {recipe.description}
+            </ThemedText>
+
+            <View style={styles.metaStack}>
+              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
+              </ThemedText>
+              <View style={styles.metaRowCompact}>
+                <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                  {machineProfile ? `📦 ${machineProfile.fillVolumeMl} ml` : `💧 ${scaledProportions.water}`}
+                </ThemedText>
+                <ThemedText style={[styles.metaLine, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]} numberOfLines={1}>
+                  ⏱️ {recipe.time.total}
+                </ThemedText>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -367,47 +371,57 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardContent: {
-    padding: 20,
+    padding: 16,
   },
-  cardTopRow: {
+  cardLayout: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 8,
+    alignItems: 'stretch',
+    gap: 14,
   },
-  emoji: {
-    fontSize: 40,
+  visualWrap: {
+    width: 92,
+    height: 92,
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  visualFallback: {
+    fontSize: 34,
   },
   cardThumbnail: {
-    width: 64,
-    height: 64,
-    borderRadius: 14,
+    width: '100%',
+    height: '100%',
+  },
+  cardMainContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+    minHeight: 92,
   },
   recipeName: {
-    marginBottom: 4,
+    marginBottom: 6,
   },
   description: {
     fontSize: 14,
-    marginBottom: 12,
     lineHeight: 20,
+    marginBottom: 10,
   },
-  proportionPreview: {
-    borderRadius: 10,
-    padding: 10,
-    gap: 2,
-    marginBottom: 12,
+  metaStack: {
+    gap: 4,
   },
-  proportionText: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  timeContainer: {
+  metaRowCompact: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  timeText: {
+  metaLine: {
     fontSize: 12,
+    lineHeight: 17,
     fontWeight: '600',
+    flexShrink: 1,
   },
   emptyState: {
     paddingVertical: 40,
