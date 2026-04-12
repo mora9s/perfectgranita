@@ -148,6 +148,7 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 7.6,
     garnish: 'Rondelle de citron',
     alcoholCategory: 'vodka',
+    image: require('@/assets/images/vodka-lemonade.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 360, 630, { abvPercent: 40 }),
       ingredient('Jus de citron jaune', 180, 315),
