@@ -1,29 +1,31 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useLanguage, type AppLanguage } from '@/app/language/language-context';
 import { useTheme, type ThemePreference } from '@/app/theme/theme-context';
-
-const OPTIONS: Array<{ value: ThemePreference; label: string }> = [
-  { value: 'light', label: 'Clair' },
-  { value: 'dark', label: 'Sombre' },
-  { value: 'system', label: 'Système' },
-];
 
 export default function SettingsScreen() {
   const { colors, themePreference, setThemePreference, resolvedTheme } = useTheme();
+  const { language, setLanguage, t, availableLanguages } = useLanguage();
+
+  const themeOptions: Array<{ value: ThemePreference; label: string }> = [
+    { value: 'light', label: t('themeLight') },
+    { value: 'dark', label: t('themeDark') },
+    { value: 'system', label: t('themeSystem') },
+  ];
 
   return (
     <ThemedView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
         <ThemedText type="title" style={styles.headerTitle}>
-          ⚙️ Paramètres
+          {t('settingsTitle')}
         </ThemedText>
       </View>
 
-      <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <ThemedText type="defaultSemiBold">Apparence</ThemedText>
-        <View style={[styles.segmentedControl, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
-          {OPTIONS.map((option) => {
+      <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+        <ThemedText type="defaultSemiBold">{t('appearanceSectionTitle')}</ThemedText>
+        <View style={[styles.segmentedControl, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}> 
+          {themeOptions.map((option) => {
             const selected = themePreference === option.value;
 
             return (
@@ -48,8 +50,41 @@ export default function SettingsScreen() {
           })}
         </View>
 
-        <ThemedText style={[styles.helper, { color: colors.textMuted }]}>
-          Thème actif: {resolvedTheme === 'dark' ? 'Sombre' : 'Clair'}
+        <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
+          {t('activeThemeLabel')}: {resolvedTheme === 'dark' ? t('activeThemeDark') : t('activeThemeLight')}
+        </ThemedText>
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+        <ThemedText type="defaultSemiBold">{t('languageSectionTitle')}</ThemedText>
+        <View style={[styles.segmentedControl, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}> 
+          {availableLanguages.map((option) => {
+            const selected = language === option.value;
+
+            return (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.segmentButton,
+                  selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
+                onPress={() => setLanguage(option.value as AppLanguage)}
+              >
+                <ThemedText
+                  style={[
+                    styles.segmentText,
+                    { color: selected ? colors.primaryText : colors.textMuted },
+                  ]}
+                >
+                  {option.label}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
+          {t('currentLanguageLabel')}: {availableLanguages.find((option) => option.value === language)?.label}
         </ThemedText>
       </View>
     </ThemedView>
