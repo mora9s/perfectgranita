@@ -132,6 +132,7 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 7.6,
     garnish: 'Zeste de citron vert',
     alcoholCategory: 'rhum',
+    image: require('@/assets/images/daiquiri-lime.jpg'),
     ingredients: [
       ingredient('Rhum blanc (40%)', 360, 630, { abvPercent: 40 }),
       ingredient('Jus de citron vert', 260, 455),
