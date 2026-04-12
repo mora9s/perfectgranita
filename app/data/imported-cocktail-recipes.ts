@@ -212,6 +212,7 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.3,
     garnish: 'Ananas frais (hors machine)',
     alcoholCategory: 'rhum',
+    image: require('@/assets/images/pina-colada-classic.jpg'),
     ingredients: [
       ingredient('Rhum blanc (40%)', 300, 525, { abvPercent: 40 }),
       ingredient('Jus d ananas', 900, 1575),
