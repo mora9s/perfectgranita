@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
+import { useLanguage } from '@/app/language/language-context';
 import { useTheme } from '@/app/theme/theme-context';
 
 function TabBarIcon({
@@ -14,6 +15,7 @@ function TabBarIcon({
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -36,28 +38,28 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Accueil',
+          title: t('tabHome'),
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explorer',
+          title: t('tabExplore'),
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
         }}
       />
       <Tabs.Screen
         name="my-recipes"
         options={{
-          title: 'Mes Recettes',
+          title: t('tabMyRecipes'),
           tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Paramètres',
+          title: t('tabSettings'),
           tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
         }}
       />

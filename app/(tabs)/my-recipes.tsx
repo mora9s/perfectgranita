@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { useLanguage } from '@/app/language/language-context';
 import { useTheme } from '@/app/theme/theme-context';
 import type { Recipe } from '@/app/types/database';
 
@@ -39,14 +40,16 @@ function RecipeCard({
 }
 
 function EmptyState({ colors }: { colors: ReturnType<typeof useTheme>['colors'] }) {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.emptyContainer}>
       <ThemedText style={styles.emptyEmoji}>📖</ThemedText>
       <ThemedText type="subtitle" style={styles.emptyTitle}>
-        Aucune recette personnalisée
+        {t('myRecipesEmptyTitle')}
       </ThemedText>
-      <ThemedText style={[styles.emptyDescription, { color: colors.textMuted }]}>
-        Créez votre première recette de granita personnalisée !
+      <ThemedText style={[styles.emptyDescription, { color: colors.textMuted }]}> 
+        {t('myRecipesEmptyDescription')}
       </ThemedText>
     </View>
   );
@@ -55,15 +58,16 @@ function EmptyState({ colors }: { colors: ReturnType<typeof useTheme>['colors'] 
 export default function MyRecipesScreen() {
   const { customRecipes } = useRecipes();
   const { colors, resolvedTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}>
-          📖 Mes Recettes
+        <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}> 
+          {t('myRecipesTitle')}
         </ThemedText>
-        <ThemedText style={[styles.headerSubtitle, { color: colors.textMuted }]}>
-          Vos créations personnalisées
+        <ThemedText style={[styles.headerSubtitle, { color: colors.textMuted }]}> 
+          {t('myRecipesSubtitle')}
         </ThemedText>
       </View>
 
@@ -83,8 +87,8 @@ export default function MyRecipesScreen() {
         style={[styles.createButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
         onPress={() => router.push('/modal')}
       >
-        <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}>
-          + Créer une recette
+        <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}> 
+          {t('myRecipesCreateButton')}
         </ThemedText>
       </Pressable>
     </ThemedView>

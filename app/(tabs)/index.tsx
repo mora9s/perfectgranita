@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
+import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
 import type { MachineId } from '@/app/types/machine';
@@ -19,6 +20,7 @@ function MachineIllustration({ machineId }: { machineId: MachineId }) {
 export default function IndexScreen() {
   const { selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
+  const { t } = useLanguage();
 
   const handleMachineSelect = (machineId: MachineId) => {
     setSelectedMachineId(machineId);
@@ -28,11 +30,11 @@ export default function IndexScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
-          🍧 Choisir votre machine
+        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}> 
+          {t('homeTitle')}
         </ThemedText>
-        <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>
-          Sélectionnez une Ninja Slushi pour adapter automatiquement les proportions.
+        <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}> 
+          {t('homeSubtitle')}
         </ThemedText>
       </View>
 
@@ -56,7 +58,7 @@ export default function IndexScreen() {
                 </ThemedText>
                 {isSelected ? (
                   <View style={[styles.selectedPill, { backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#EDE9FE' }]}>
-                    <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}>Active</ThemedText>
+                    <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}>{t('homeSelectedMachine')}</ThemedText>
                   </View>
                 ) : null}
               </View>
@@ -64,12 +66,12 @@ export default function IndexScreen() {
               <MachineIllustration machineId={machine.id} />
 
               <View style={styles.machineMetaRow}>
-                <ThemedText style={[styles.machineMeta, { color: colors.textMuted }]}>Capacité: {machine.capacityLiters}L</ThemedText>
+                <ThemedText style={[styles.machineMeta, { color: colors.textMuted }]}>{t('homeCapacityLabel')}: {machine.capacityLiters}L</ThemedText>
                 <ThemedText style={styles.machineEmoji}>{machine.emoji}</ThemedText>
               </View>
 
               <View style={[styles.chooseButton, { backgroundColor: colors.primary }]}>
-                <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}>Choisir et voir les recettes</ThemedText>
+                <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}>{t('homeChooseButton')}</ThemedText>
               </View>
             </Pressable>
           );
