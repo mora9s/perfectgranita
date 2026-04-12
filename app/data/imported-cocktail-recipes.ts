@@ -162,6 +162,7 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.8,
     garnish: 'Menthe + tranche de citron vert',
     alcoholCategory: 'vodka',
+    image: require('@/assets/images/moscow-mule.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Ginger beer non light', 1100, 1925),

@@ -76,7 +76,9 @@ function RecipeDetail({
         ]}
       >
         {recipe.media?.image ? (
-          <Image source={recipe.media.image} style={styles.heroImage} resizeMode="cover" />
+          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
+            <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
+          </View>
         ) : null}
         <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText>
         <ThemedText type="title" style={styles.detailTitle}>
@@ -366,11 +368,17 @@ const styles = StyleSheet.create({
     fontSize: 64,
     marginBottom: 8,
   },
+  heroImageFrame: {
+    width: '100%',
+    borderRadius: 16,
+    padding: 8,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
   heroImage: {
     width: '100%',
     height: 220,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
   },
   detailTitle: {
     marginBottom: 8,
