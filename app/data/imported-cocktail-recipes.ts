@@ -228,6 +228,7 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 8.3,
     garnish: 'Poudre cacao ou grains de cafe',
     alcoholCategory: 'vodka',
+    image: require('@/assets/images/espresso-martini.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 280, 490, { abvPercent: 40 }),
       ingredient('Liqueur de cafe (20%)', 220, 385, { abvPercent: 20 }),
