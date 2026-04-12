@@ -328,6 +328,7 @@ export const importedCocktailRecipes: Recipe[] = [
     garnish: 'Ananas',
     alcoholCategory: 'rhum',
     usesMonin: true,
+    image: require('@/assets/images/pina-colada-sans-lactose.jpg'),
     ingredients: [
       ingredient('Sirop Monin Pina Colada', 284, 500),
       ingredient('Jus d ananas', 1323, 2315),
