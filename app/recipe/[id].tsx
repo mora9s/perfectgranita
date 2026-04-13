@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
+import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
@@ -20,12 +21,6 @@ interface RecipeDetailProps {
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
 }
 
-const PROPORTION_LABELS: Record<'water' | 'sugar' | 'flavor', string> = {
-  water: 'Eau',
-  sugar: 'Sucre',
-  flavor: 'Base aromatique',
-};
-
 function RecipeDetail({
   recipe,
   machineId,
@@ -35,6 +30,7 @@ function RecipeDetail({
   colors,
   resolvedTheme,
 }: RecipeDetailProps) {
+  const { t } = useLanguage();
   const machineProfile = recipe.machineProfiles?.[machineId];
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const baseIngredientRows: RecipeIngredient[] =
@@ -51,16 +47,22 @@ function RecipeDetail({
     return entry;
   });
 
+  const proportionLabels: Record<'water' | 'sugar' | 'flavor', string> = {
+    water: t('proportionWater'),
+    sugar: t('proportionSugar'),
+    flavor: t('proportionFlavor'),
+  };
+
   const beforeStartSteps =
     recipe.machineGuidance?.beforeStart ?? [
-      'Prepare une base homogene et bien froide.',
-      'Filtre les morceaux ou fibres pour proteger la machine.'
+      t('recipeDefaultBeforeStart1'),
+      t('recipeDefaultBeforeStart2'),
     ];
 
   const pourAndRunSteps =
     recipe.machineGuidance?.pourAndRun ?? [
-      'Verse la preparation dans la cuve sans depasser le max.',
-      'Lance un cycle granita puis ajuste selon la texture souhaitee.'
+      t('recipeDefaultPourRun1'),
+      t('recipeDefaultPourRun2'),
     ];
 
   return (
@@ -76,7 +78,7 @@ function RecipeDetail({
         ]}
       >
         {recipe.media?.image ? (
-          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
+          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}>
             <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
           </View>
         ) : null}
@@ -88,15 +90,15 @@ function RecipeDetail({
 
         <View style={styles.metaRow}>
           {recipe.serves ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
               <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>👥 {recipe.serves}</ThemedText>
             </View>
           ) : null}
-          <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+          <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
             <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>⏱ {recipe.time.total}</ThemedText>
           </View>
           {recipe.garnish ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
               <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>✨ {recipe.garnish}</ThemedText>
             </View>
           ) : null}
@@ -104,9 +106,9 @@ function RecipeDetail({
       </View>
 
       {recipe.drinkVisual ? (
-        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>🍸 VISUEL SERVICE</ThemedText>
-          <View style={[styles.drinkVisualCard, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}> 
+        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeVisualSectionTitle')}</ThemedText>
+          <View style={[styles.drinkVisualCard, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
             <ThemedText style={styles.drinkVisualEmoji}>{recipe.drinkVisual.emoji}</ThemedText>
             <View style={styles.drinkVisualCopy}>
               <ThemedText style={styles.drinkVisualTitle}>{recipe.drinkVisual.title}</ThemedText>
@@ -118,10 +120,10 @@ function RecipeDetail({
         </View>
       ) : null}
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>📋 INGREDIENTS</ThemedText>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeIngredientsSectionTitle')}</ThemedText>
         {ingredientRows.map((item, index) => (
-          <View key={`${item.item}-${index}`} style={[styles.ingredientRow, { borderBottomColor: colors.border }]}> 
+          <View key={`${item.item}-${index}`} style={[styles.ingredientRow, { borderBottomColor: colors.border }]}>
             <ThemedText style={[styles.ingredientQty, { color: colors.primary }]}>
               {item.quantity || '•'}
             </ThemedText>
@@ -135,20 +137,20 @@ function RecipeDetail({
         ))}
       </View>
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>🧊 MACHINE</ThemedText>
-        <ThemedText style={[styles.machineNote, { color: colors.textMuted }]}> 
-          Machine active: {selectedMachineName} ({selectedMachineCapacityLiters}L)
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeMachineSectionTitle')}</ThemedText>
+        <ThemedText style={[styles.machineNote, { color: colors.textMuted }]}>
+          {t('recipeActiveMachineLabel')}: {selectedMachineName} ({selectedMachineCapacityLiters}L)
         </ThemedText>
 
         {machineProfile ? (
           <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}>
-            <ThemedText style={styles.machineBlockTitle}>Programme: {machineProfile.machineProgram}</ThemedText>
-            <ThemedText style={styles.stepLine}>Volume cible: {machineProfile.fillVolumeMl} ml</ThemedText>
+            <ThemedText style={styles.machineBlockTitle}>{t('recipeProgramLabel')}: {machineProfile.machineProgram}</ThemedText>
+            <ThemedText style={styles.stepLine}>{t('recipeTargetVolumeLabel')}: {machineProfile.fillVolumeMl} ml</ThemedText>
             {typeof machineProfile.estimatedAbvPercent === 'number' ? (
-              <ThemedText style={styles.stepLine}>ABV estime: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
+              <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
             ) : null}
-            <ThemedText style={styles.stepLine}>Temps machine: {machineProfile.estimatedRunTime}</ThemedText>
+            <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile.estimatedRunTime}</ThemedText>
           </View>
         ) : null}
 
@@ -184,8 +186,8 @@ function RecipeDetail({
         </View>
 
         {machineProfile ? (
-          <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
-            <ThemedText style={styles.machineBlockTitle}>Etapes machine ({selectedMachineName})</ThemedText>
+          <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
+            <ThemedText style={styles.machineBlockTitle}>{t('recipeMachineStepsTitle')} ({selectedMachineName})</ThemedText>
             {machineProfile.steps.map((step, index) => (
               <ThemedText key={`machine-profile-step-${index}`} style={styles.stepLine}>
                 {index + 1}. {step}
@@ -194,8 +196,8 @@ function RecipeDetail({
           </View>
         ) : (
           <>
-            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
-              <ThemedText style={styles.machineBlockTitle}>A preparer avant de verser</ThemedText>
+            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
+              <ThemedText style={styles.machineBlockTitle}>{t('recipePrepareBeforeTitle')}</ThemedText>
               {beforeStartSteps.map((step, index) => (
                 <ThemedText key={`before-${index}`} style={styles.stepLine}>
                   {index + 1}. {step}
@@ -203,8 +205,8 @@ function RecipeDetail({
               ))}
             </View>
 
-            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}> 
-              <ThemedText style={styles.machineBlockTitle}>Ajouter / Verser / Lancer</ThemedText>
+            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
+              <ThemedText style={styles.machineBlockTitle}>{t('recipePourRunTitle')}</ThemedText>
               {pourAndRunSteps.map((step, index) => (
                 <ThemedText key={`pour-${index}`} style={styles.stepLine}>
                   {index + 1}. {step}
@@ -214,8 +216,8 @@ function RecipeDetail({
 
             <View style={styles.proportionList}>
               {(Object.keys(scaledProportions) as Array<keyof typeof scaledProportions>).map((key) => (
-                <View key={key} style={[styles.proportionRow, { borderBottomColor: colors.border }]}> 
-                  <ThemedText style={[styles.proportionLabel, { color: colors.textMuted }]}>{PROPORTION_LABELS[key]}</ThemedText>
+                <View key={key} style={[styles.proportionRow, { borderBottomColor: colors.border }]}>
+                  <ThemedText style={[styles.proportionLabel, { color: colors.textMuted }]}>{proportionLabels[key]}</ThemedText>
                   <ThemedText style={styles.proportionValue}>{scaledProportions[key]}</ThemedText>
                 </View>
               ))}
@@ -224,8 +226,8 @@ function RecipeDetail({
         )}
       </View>
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>📝 PREPARATION BASE</ThemedText>
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeBasePreparationTitle')}</ThemedText>
         {recipe.instructions.map((item, index) => (
           <ThemedText key={index} style={styles.stepLine}>
             {index + 1}. {item}
@@ -234,26 +236,34 @@ function RecipeDetail({
       </View>
 
       {(recipe.tips?.length || recipe.notes?.length) ? (
-        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>💡 CONSEILS</ThemedText>
+        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeTipsTitle')}</ThemedText>
           {recipe.tips?.map((item, index) => (
             <ThemedText key={`tip-${index}`} style={styles.stepLine}>• {item}</ThemedText>
           ))}
           {recipe.notes?.map((item, index) => (
             <ThemedText key={`note-${index}`} style={[styles.stepLine, { color: colors.textMuted }]}>
-              Note: {item}
+              {t('recipeNoteLabel')}: {item}
             </ThemedText>
           ))}
         </View>
       ) : null}
 
       <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>⏱ TEMPS</ThemedText>
-        {Object.entries(recipe.time).map(([key, value]) => (
-          <ThemedText key={key} style={styles.stepLine}>
-            {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-          </ThemedText>
-        ))}
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeTimeSectionTitle')}</ThemedText>
+        {Object.entries(recipe.time).map(([key, value]) => {
+          const labelByKey = {
+            prep: t('recipeTimePrep'),
+            freezing: t('recipeTimeFreezing'),
+            total: t('recipeTimeTotal'),
+          } as const;
+
+          return (
+            <ThemedText key={key} style={styles.stepLine}>
+              {labelByKey[key as keyof typeof labelByKey]}: {value}
+            </ThemedText>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -263,6 +273,7 @@ export default function RecipeScreen() {
   const { recipes } = useRecipes();
   const { selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
+  const { t } = useLanguage();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
@@ -272,12 +283,12 @@ export default function RecipeScreen() {
       <ThemedView style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.errorContainer}>
-          <ThemedText type="title" style={[styles.errorTitle, { color: colors.danger }]}>Recette introuvable</ThemedText>
-          <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}>
-            La recette que vous recherchez n'existe pas.
+          <ThemedText type="title" style={[styles.errorTitle, { color: colors.danger }]}>{t('recipeMissingTitle')}</ThemedText>
+          <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}> 
+            {t('recipeMissingDescription')}
           </ThemedText>
           <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.primary }]}> 
-            <ThemedText style={[styles.backButtonText, { color: colors.primaryText }]}>Retour</ThemedText>
+            <ThemedText style={[styles.backButtonText, { color: colors.primaryText }]}>{t('recipeBackButton')}</ThemedText>
           </Pressable>
         </View>
       </ThemedView>
