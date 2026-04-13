@@ -126,25 +126,6 @@ function RecipeDetail({
           })}
         </View>
 
-        <View style={styles.heroMetaGrid}>
-          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
-            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeActiveMachineLabel')}</ThemedText>
-            <ThemedText style={styles.heroInfoValue}>{selectedMachineName}</ThemedText>
-          </View>
-          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
-            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeTargetVolumeLabel')}</ThemedText>
-            <ThemedText style={styles.heroInfoValue}>{machineProfile ? `${machineProfile.fillVolumeMl} ml` : `${selectedMachineCapacityLiters}L`}</ThemedText>
-          </View>
-          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
-            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeMachineTimeLabel')}</ThemedText>
-            <ThemedText style={styles.heroInfoValue}>{machineProfile ? machineProfile.estimatedRunTime : recipe.time.total}</ThemedText>
-          </View>
-          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
-            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeProgramLabel')}</ThemedText>
-            <ThemedText style={styles.heroInfoValue}>{machineProfile ? machineProfile.machineProgram : '—'}</ThemedText>
-          </View>
-        </View>
-
         {recipe.media?.image ? (
           <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
             <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
@@ -203,14 +184,15 @@ function RecipeDetail({
       <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
         <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeMachineSectionTitle')}</ThemedText>
 
-        {machineProfile ? (
-          <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}> 
-            {typeof machineProfile.estimatedAbvPercent === 'number' ? (
-              <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
-            ) : null}
-            <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile.estimatedRunTime}</ThemedText>
-          </View>
-        ) : null}
+        <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}> 
+          <ThemedText style={styles.stepLine}>{t('recipeActiveMachineLabel')}: {selectedMachineName} ({selectedMachineCapacityLiters}L)</ThemedText>
+          <ThemedText style={styles.stepLine}>{t('recipeTargetVolumeLabel')}: {machineProfile ? `${machineProfile.fillVolumeMl} ml` : `${selectedMachineCapacityLiters}L`}</ThemedText>
+          <ThemedText style={styles.stepLine}>{t('recipeProgramLabel')}: {machineProfile ? machineProfile.machineProgram : '—'}</ThemedText>
+          {typeof machineProfile?.estimatedAbvPercent === 'number' ? (
+            <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
+          ) : null}
+          <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile ? machineProfile.estimatedRunTime : recipe.time.total}</ThemedText>
+        </View>
 
         {machineProfile ? (
           <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
@@ -416,29 +398,6 @@ const styles = StyleSheet.create({
     fontSize: 48,
     lineHeight: 56,
   },
-  heroMetaGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 16,
-  },
-  heroInfoCard: {
-    width: '48%',
-    borderRadius: 14,
-    padding: 12,
-    gap: 4,
-  },
-  heroInfoLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  heroInfoValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 20,
-  },
   heroImageFrame: {
     width: '100%',
     borderRadius: 16,
@@ -448,7 +407,7 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 220,
+    height: 300,
     borderRadius: 12,
   },
   detailTitle: {
