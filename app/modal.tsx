@@ -5,11 +5,13 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useState } from 'react';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { useLanguage } from '@/app/language/language-context';
 import { useTheme } from '@/app/theme/theme-context';
 
 export default function ModalScreen() {
   const { addCustomRecipe } = useRecipes();
   const { colors, resolvedTheme } = useTheme();
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -18,7 +20,7 @@ export default function ModalScreen() {
       addCustomRecipe({
         name: name.trim(),
         emoji: '🍧',
-        description: description.trim() || 'Ma recette personnalisée',
+        description: description.trim() || t('modalDefaultDescription'),
         ingredients: [],
         proportions: {
           water: '',
@@ -39,8 +41,8 @@ export default function ModalScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.surface }]}>
-        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
-          ✨ Nouvelle Recette
+        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}> 
+          {t('modalTitle')}
         </ThemedText>
         <Pressable onPress={() => router.back()} style={[styles.closeButton, { backgroundColor: colors.background }]}>
           <ThemedText style={[styles.closeButtonText, { color: colors.textMuted }]}>✕</ThemedText>
@@ -49,23 +51,23 @@ export default function ModalScreen() {
 
       <View style={styles.form}>
         <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Nom de la recette</ThemedText>
+          <ThemedText style={styles.label}>{t('modalNameLabel')}</ThemedText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
             value={name}
             onChangeText={setName}
-            placeholder="Ex: Mojito Frozen"
+            placeholder={t('modalNamePlaceholder')}
             placeholderTextColor={colors.textMuted}
           />
         </View>
 
         <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Description</ThemedText>
+          <ThemedText style={styles.label}>{t('modalDescriptionLabel')}</ThemedText>
           <TextInput
             style={[styles.input, styles.textArea, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
             value={description}
             onChangeText={setDescription}
-            placeholder="Décrivez votre recette..."
+            placeholder={t('modalDescriptionPlaceholder')}
             placeholderTextColor={colors.textMuted}
             multiline
             numberOfLines={4}
@@ -82,7 +84,7 @@ export default function ModalScreen() {
           disabled={!name.trim()}
         >
           <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}>
-            Créer la recette
+            {t('modalCreateButton')}
           </ThemedText>
         </Pressable>
       </View>

@@ -80,6 +80,13 @@ const DICTIONARY = {
     recipeDefaultBeforeStart2: 'Filtre les morceaux ou fibres pour protéger la machine.',
     recipeDefaultPourRun1: 'Verse la préparation dans la cuve sans dépasser le max.',
     recipeDefaultPourRun2: 'Lance un cycle granita puis ajuste selon la texture souhaitée.',
+    modalTitle: '✨ Nouvelle Recette',
+    modalNameLabel: 'Nom de la recette',
+    modalNamePlaceholder: 'Ex: Mojito Frozen',
+    modalDescriptionLabel: 'Description',
+    modalDescriptionPlaceholder: 'Décrivez votre recette...',
+    modalCreateButton: 'Créer la recette',
+    modalDefaultDescription: 'Ma recette personnalisée',
   },
   en: {
     settingsTitle: '⚙️ Settings',
@@ -156,6 +163,13 @@ const DICTIONARY = {
     recipeDefaultBeforeStart2: 'Filter chunks or fibers to protect the machine.',
     recipeDefaultPourRun1: 'Pour the mixture into the bowl without exceeding the max line.',
     recipeDefaultPourRun2: 'Start a granita cycle, then adjust based on the desired texture.',
+    modalTitle: '✨ New Recipe',
+    modalNameLabel: 'Recipe name',
+    modalNamePlaceholder: 'Ex: Frozen Mojito',
+    modalDescriptionLabel: 'Description',
+    modalDescriptionPlaceholder: 'Describe your recipe...',
+    modalCreateButton: 'Create recipe',
+    modalDefaultDescription: 'My custom recipe',
   },
 } as const;
 
