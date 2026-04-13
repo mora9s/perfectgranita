@@ -162,6 +162,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 7.6,
     garnish: 'Rondelle de citron',
     alcoholCategory: 'vodka',
+    i18n: {
+      en: {
+        name: 'Frozen Vodka Lemonade',
+        description: 'Hard lemonade version with regular lemonade.',
+      },
+    },
     image: require('@/assets/images/vodka-lemonade.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 360, 630, { abvPercent: 40 }),
@@ -201,6 +207,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.8,
     garnish: 'Zeste de citron vert ou pamplemousse',
     alcoholCategory: 'gin',
+    i18n: {
+      en: {
+        name: 'Frozen Gin and Tonic',
+        description: 'Dry, herbal profile with a light touch of sweetness.',
+      },
+    },
     ingredients: [
       ingredient('Gin (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Tonic non light', 1250, 2190),
@@ -279,6 +291,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.7,
     garnish: 'Tranche d orange',
     alcoholCategory: 'aperol-prosecco',
+    i18n: {
+      en: {
+        name: 'Frozen Aperol Spritz',
+        description: 'Aperol, prosecco and orange balanced for a granita texture.',
+      },
+    },
     notes: ['ABV calcule avec Aperol 12,5% et Prosecco 11%.'],
     ingredients: [
       ingredient('Aperol (12.5%)', 400, 700, { abvPercent: 12.5 }),
@@ -407,6 +425,12 @@ export const importedCocktailRecipes: Recipe[] = [
     garnish: 'Fraise + citron vert (hors machine)',
     alcoholCategory: 'vin',
     usesMonin: true,
+    i18n: {
+      en: {
+        name: 'Frozen Rosé',
+        description: 'Wild strawberry and rosé wine, with ABV depending on the wine used.',
+      },
+    },
     notes: [
       'ABV reel dependant du degre du vin rose utilise.',
       'Approximation rapport: ABV final ~= 0,65 x ABV du vin rose.'
