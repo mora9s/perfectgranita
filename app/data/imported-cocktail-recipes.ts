@@ -66,6 +66,7 @@ function cocktailRecipe(input: {
   alcoholCategory: RecipeAlcoholCategory;
   usesMonin?: boolean;
   notes?: string[];
+  i18n?: Recipe['i18n'];
   image?: any;
   ingredients: RecipeIngredient[];
 }): Recipe {
@@ -86,6 +87,7 @@ function cocktailRecipe(input: {
     alcoholCategory: input.alcoholCategory,
     usesMonin: input.usesMonin ?? false,
     notes: input.notes,
+    i18n: input.i18n,
     machineProfiles: machineProfiles(input.abv),
     media: {
       image: input.image,
@@ -115,6 +117,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 8.3,
     garnish: 'Bord sel + quartier de citron vert',
     alcoholCategory: 'tequila',
+    i18n: {
+      en: {
+        name: 'Classic Margarita (slush)',
+        description: 'Tequila, orange liqueur and lime, diluted for a stable slush texture.',
+      },
+    },
     image: require('@/assets/images/margarita-frozen.jpg'),
     ingredients: [
       ingredient('Tequila blanco (40%)', 260, 455, { abvPercent: 40 }),

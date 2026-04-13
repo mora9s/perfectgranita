@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
+import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
@@ -17,15 +18,18 @@ type MoninFilter = 'all' | 'monin' | 'non-monin';
 interface RecipeCardProps {
   recipe: Recipe;
   machineId: MachineId;
+  language: 'fr' | 'en';
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
 }
 
-function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProps) {
+function RecipeCard({ recipe, machineId, language, colors, resolvedTheme }: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const machineProfile = recipe.machineProfiles?.[machineId];
   const recipeImage = recipe.media?.image;
   const hasImage = Boolean(recipeImage);
+  const localizedName = getLocalizedRecipeText(recipe, language, 'name');
+  const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
 
   return (
     <Pressable
@@ -52,10 +56,10 @@ function RecipeCard({ recipe, machineId, colors, resolvedTheme }: RecipeCardProp
 
           <View style={styles.cardMainContent}>
             <ThemedText type="subtitle" style={styles.recipeName} numberOfLines={2}>
-              {recipe.name}
+              {localizedName}
             </ThemedText>
             <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
-              {recipe.description}
+              {localizedDescription}
             </ThemedText>
 
             <View style={styles.metaStack}>
@@ -82,7 +86,7 @@ export default function ExploreScreen() {
   const { recipes } = useRecipes();
   const { selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeAlcohol, setActiveAlcohol] = useState<RecipeAlcoholCategory | 'all'>('all');
   const [activeMonin, setActiveMonin] = useState<MoninFilter>('all');
   const [filtersExpanded, setFiltersExpanded] = useState(false);
@@ -257,7 +261,7 @@ export default function ExploreScreen() {
         data={filteredRecipes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <RecipeCard recipe={item} machineId={selectedMachineId} colors={colors} resolvedTheme={resolvedTheme} />
+          <RecipeCard recipe={item} machineId={selectedMachineId} language={language} colors={colors} resolvedTheme={resolvedTheme} />
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}

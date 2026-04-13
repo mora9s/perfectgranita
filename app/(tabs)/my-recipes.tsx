@@ -4,18 +4,24 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { useLanguage } from '@/app/language/language-context';
+import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
 import type { Recipe } from '@/app/types/database';
 
 function RecipeCard({
   recipe,
+  language,
   colors,
   resolvedTheme,
 }: {
   recipe: Recipe;
+  language: 'fr' | 'en';
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
 }) {
+  const localizedName = getLocalizedRecipeText(recipe, language, 'name');
+  const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
+
   return (
     <Pressable
       style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
@@ -24,10 +30,10 @@ function RecipeCard({
       <View style={styles.cardContent}>
         <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
         <ThemedText type="subtitle" style={styles.recipeName}>
-          {recipe.name}
+          {localizedName}
         </ThemedText>
         <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
-          {recipe.description}
+          {localizedDescription}
         </ThemedText>
         <View style={styles.timeContainer}>
           <ThemedText style={[styles.timeText, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]}>
@@ -58,7 +64,7 @@ function EmptyState({ colors }: { colors: ReturnType<typeof useTheme>['colors'] 
 export default function MyRecipesScreen() {
   const { customRecipes } = useRecipes();
   const { colors, resolvedTheme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <ThemedView style={styles.container}>
@@ -77,7 +83,7 @@ export default function MyRecipesScreen() {
         <FlatList
           data={customRecipes}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <RecipeCard recipe={item} colors={colors} resolvedTheme={resolvedTheme} />}
+          renderItem={({ item }) => <RecipeCard recipe={item} language={language} colors={colors} resolvedTheme={resolvedTheme} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />

@@ -19,6 +19,24 @@ export interface RecipeDrinkVisual {
   subtitle: string;
 }
 
+export interface RecipeLocalizedDrinkVisual {
+  title?: string;
+  subtitle?: string;
+}
+
+export interface RecipeLocalizedContent {
+  name?: string;
+  description?: string;
+  tips?: string[];
+  notes?: string[];
+  drinkVisual?: RecipeLocalizedDrinkVisual;
+}
+
+export interface RecipeI18n {
+  fr?: RecipeLocalizedContent;
+  en?: RecipeLocalizedContent;
+}
+
 export interface RecipeMedia {
   image?: any;
   imageAlt?: string;
@@ -64,6 +82,7 @@ export interface Recipe {
   machineProfiles?: Partial<Record<MachineId, RecipeMachineProfile>>;
   media?: RecipeMedia;
   drinkVisual?: RecipeDrinkVisual;
+  i18n?: RecipeI18n;
   instructions: string[];
   time: {
     prep: string;

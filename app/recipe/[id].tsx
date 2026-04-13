@@ -6,6 +6,7 @@ import { useRecipes } from '@/app/hooks/use-recipes';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
+import { getLocalizedRecipeDrinkVisual, getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe, RecipeIngredient } from '@/app/types/database';
@@ -19,6 +20,7 @@ interface RecipeDetailProps {
   onMachineSelect: (machineId: MachineId) => void;
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
+  language: 'fr' | 'en';
 }
 
 function RecipeDetail({
@@ -29,6 +31,7 @@ function RecipeDetail({
   onMachineSelect,
   colors,
   resolvedTheme,
+  language,
 }: RecipeDetailProps) {
   const { t } = useLanguage();
   const machineProfile = recipe.machineProfiles?.[machineId];
@@ -46,6 +49,10 @@ function RecipeDetail({
     }
     return entry;
   });
+
+  const localizedName = getLocalizedRecipeText(recipe, language, 'name');
+  const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
+  const localizedDrinkVisual = getLocalizedRecipeDrinkVisual(recipe, language);
 
   const proportionLabels: Record<'water' | 'sugar' | 'flavor', string> = {
     water: t('proportionWater'),
@@ -84,9 +91,9 @@ function RecipeDetail({
         ) : null}
         <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText>
         <ThemedText type="title" style={styles.detailTitle}>
-          {recipe.name}
+          {localizedName}
         </ThemedText>
-        <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>{recipe.description}</ThemedText>
+        <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>{localizedDescription}</ThemedText>
 
         <View style={styles.metaRow}>
           {recipe.serves ? (
@@ -105,15 +112,15 @@ function RecipeDetail({
         </View>
       </View>
 
-      {recipe.drinkVisual ? (
+      {localizedDrinkVisual ? (
         <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
           <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeVisualSectionTitle')}</ThemedText>
           <View style={[styles.drinkVisualCard, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
-            <ThemedText style={styles.drinkVisualEmoji}>{recipe.drinkVisual.emoji}</ThemedText>
+            <ThemedText style={styles.drinkVisualEmoji}>{localizedDrinkVisual.emoji}</ThemedText>
             <View style={styles.drinkVisualCopy}>
-              <ThemedText style={styles.drinkVisualTitle}>{recipe.drinkVisual.title}</ThemedText>
-              <ThemedText style={[styles.drinkVisualSubtitle, { color: colors.textMuted }]}>
-                {recipe.drinkVisual.subtitle}
+              <ThemedText style={styles.drinkVisualTitle}>{localizedDrinkVisual.title}</ThemedText>
+              <ThemedText style={[styles.drinkVisualSubtitle, { color: colors.textMuted }]}> 
+                {localizedDrinkVisual.subtitle}
               </ThemedText>
             </View>
           </View>
@@ -249,7 +256,7 @@ function RecipeDetail({
         </View>
       ) : null}
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
         <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeTimeSectionTitle')}</ThemedText>
         {Object.entries(recipe.time).map(([key, value]) => {
           const labelByKey = {
@@ -273,7 +280,7 @@ export default function RecipeScreen() {
   const { recipes } = useRecipes();
   const { selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
@@ -284,10 +291,10 @@ export default function RecipeScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.errorContainer}>
           <ThemedText type="title" style={[styles.errorTitle, { color: colors.danger }]}>{t('recipeMissingTitle')}</ThemedText>
-          <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}> 
+          <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}>
             {t('recipeMissingDescription')}
           </ThemedText>
-          <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.primary }]}> 
+          <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.primary }]}>
             <ThemedText style={[styles.backButtonText, { color: colors.primaryText }]}>{t('recipeBackButton')}</ThemedText>
           </Pressable>
         </View>
@@ -300,7 +307,7 @@ export default function RecipeScreen() {
       <Stack.Screen
         options={{
           headerShown: false,
-          title: recipe.name,
+          title: getLocalizedRecipeText(recipe, language, 'name'),
         }}
       />
       <View style={styles.backHeader}>
@@ -325,6 +332,7 @@ export default function RecipeScreen() {
         onMachineSelect={setSelectedMachineId}
         colors={colors}
         resolvedTheme={resolvedTheme}
+        language={language}
       />
     </ThemedView>
   );
