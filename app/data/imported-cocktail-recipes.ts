@@ -140,6 +140,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 7.6,
     garnish: 'Zeste de citron vert',
     alcoholCategory: 'rhum',
+    i18n: {
+      en: {
+        name: 'Lime Daiquiri (slush)',
+        description: 'White rum, lime and syrup with controlled dilution.',
+      },
+    },
     image: require('@/assets/images/daiquiri-lime.jpg'),
     ingredients: [
       ingredient('Rhum blanc (40%)', 360, 630, { abvPercent: 40 }),
@@ -172,6 +178,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.8,
     garnish: 'Menthe + tranche de citron vert',
     alcoholCategory: 'vodka',
+    i18n: {
+      en: {
+        name: 'Moscow Mule (slush)',
+        description: 'Vodka, ginger beer and lime in granita form.',
+      },
+    },
     image: require('@/assets/images/moscow-mule.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 320, 560, { abvPercent: 40 }),
@@ -221,6 +233,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 6.3,
     garnish: 'Ananas frais (hors machine)',
     alcoholCategory: 'rhum',
+    i18n: {
+      en: {
+        name: 'Classic Piña Colada',
+        description: 'Coconut and pineapple version without Monin syrup.',
+      },
+    },
     image: require('@/assets/images/pina-colada-classic.jpg'),
     ingredients: [
       ingredient('Rhum blanc (40%)', 300, 525, { abvPercent: 40 }),
@@ -238,6 +256,12 @@ export const importedCocktailRecipes: Recipe[] = [
     abv: 8.3,
     garnish: 'Poudre cacao ou grains de cafe',
     alcoholCategory: 'vodka',
+    i18n: {
+      en: {
+        name: 'Espresso Martini (slush)',
+        description: 'Vodka, coffee liqueur and chilled coffee.',
+      },
+    },
     image: require('@/assets/images/espresso-martini.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 280, 490, { abvPercent: 40 }),
@@ -321,6 +345,12 @@ export const importedCocktailRecipes: Recipe[] = [
     garnish: 'Ananas + coco rapee (hors machine)',
     alcoholCategory: 'rhum',
     usesMonin: true,
+    i18n: {
+      en: {
+        name: 'Piña Colada (Monin), official',
+        description: 'Official Ninja x Monin co-branded version.',
+      },
+    },
     image: require('@/assets/images/pina-colada-sans-lactose.jpg'),
     ingredients: [
       ingredient('Sirop Monin Pina Colada', 189, 330),
@@ -338,6 +368,12 @@ export const importedCocktailRecipes: Recipe[] = [
     garnish: 'Ananas',
     alcoholCategory: 'rhum',
     usesMonin: true,
+    i18n: {
+      en: {
+        name: 'Piña Colada (Monin), dairy-free',
+        description: 'Monin variation without coconut milk.',
+      },
+    },
     image: require('@/assets/images/pina-colada-sans-lactose.jpg'),
     ingredients: [
       ingredient('Sirop Monin Pina Colada', 284, 500),
