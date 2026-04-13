@@ -84,82 +84,16 @@ function RecipeDetail({
           },
         ]}
       >
-        {recipe.media?.image ? (
-          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}>
-            <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
-          </View>
-        ) : null}
-        <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText>
-        <ThemedText type="title" style={styles.detailTitle}>
-          {localizedName}
-        </ThemedText>
-        <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>{localizedDescription}</ThemedText>
-
-        <View style={styles.metaRow}>
-          {recipe.serves ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
-              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>👥 {recipe.serves}</ThemedText>
-            </View>
-          ) : null}
-          <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
-            <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>⏱ {recipe.time.total}</ThemedText>
-          </View>
-          {recipe.garnish ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}>
-              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>✨ {recipe.garnish}</ThemedText>
-            </View>
-          ) : null}
-        </View>
-      </View>
-
-      {localizedDrinkVisual ? (
-        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeVisualSectionTitle')}</ThemedText>
-          <View style={[styles.drinkVisualCard, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
-            <ThemedText style={styles.drinkVisualEmoji}>{localizedDrinkVisual.emoji}</ThemedText>
-            <View style={styles.drinkVisualCopy}>
-              <ThemedText style={styles.drinkVisualTitle}>{localizedDrinkVisual.title}</ThemedText>
-              <ThemedText style={[styles.drinkVisualSubtitle, { color: colors.textMuted }]}> 
-                {localizedDrinkVisual.subtitle}
-              </ThemedText>
-            </View>
-          </View>
-        </View>
-      ) : null}
-
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeIngredientsSectionTitle')}</ThemedText>
-        {ingredientRows.map((item, index) => (
-          <View key={`${item.item}-${index}`} style={[styles.ingredientRow, { borderBottomColor: colors.border }]}>
-            <ThemedText style={[styles.ingredientQty, { color: colors.primary }]}>
-              {item.quantity || '•'}
+        <View style={styles.heroTopRow}>
+          <View style={styles.heroTopCopy}>
+            <ThemedText type="title" style={styles.detailTitle}>
+              {localizedName}
             </ThemedText>
-            <View style={styles.ingredientTextWrap}>
-              <ThemedText style={styles.ingredientItem}>{item.item}</ThemedText>
-              {item.note ? (
-                <ThemedText style={[styles.ingredientNote, { color: colors.textMuted }]}>{item.note}</ThemedText>
-              ) : null}
-            </View>
+            <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>{localizedDescription}</ThemedText>
           </View>
-        ))}
-      </View>
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeMachineSectionTitle')}</ThemedText>
-        <ThemedText style={[styles.machineNote, { color: colors.textMuted }]}>
-          {t('recipeActiveMachineLabel')}: {selectedMachineName} ({selectedMachineCapacityLiters}L)
-        </ThemedText>
-
-        {machineProfile ? (
-          <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}>
-            <ThemedText style={styles.machineBlockTitle}>{t('recipeProgramLabel')}: {machineProfile.machineProgram}</ThemedText>
-            <ThemedText style={styles.stepLine}>{t('recipeTargetVolumeLabel')}: {machineProfile.fillVolumeMl} ml</ThemedText>
-            {typeof machineProfile.estimatedAbvPercent === 'number' ? (
-              <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
-            ) : null}
-            <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile.estimatedRunTime}</ThemedText>
-          </View>
-        ) : null}
+          {!recipe.media?.image ? <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText> : null}
+        </View>
 
         <View style={styles.machineSwitcher}>
           {MACHINE_OPTIONS.map((machine) => {
@@ -191,6 +125,92 @@ function RecipeDetail({
             );
           })}
         </View>
+
+        <View style={styles.heroMetaGrid}>
+          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
+            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeActiveMachineLabel')}</ThemedText>
+            <ThemedText style={styles.heroInfoValue}>{selectedMachineName}</ThemedText>
+          </View>
+          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
+            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeTargetVolumeLabel')}</ThemedText>
+            <ThemedText style={styles.heroInfoValue}>{machineProfile ? `${machineProfile.fillVolumeMl} ml` : `${selectedMachineCapacityLiters}L`}</ThemedText>
+          </View>
+          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
+            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeMachineTimeLabel')}</ThemedText>
+            <ThemedText style={styles.heroInfoValue}>{machineProfile ? machineProfile.estimatedRunTime : recipe.time.total}</ThemedText>
+          </View>
+          <View style={[styles.heroInfoCard, { backgroundColor: colors.surface }]}> 
+            <ThemedText style={[styles.heroInfoLabel, { color: colors.textMuted }]}>{t('recipeProgramLabel')}</ThemedText>
+            <ThemedText style={styles.heroInfoValue}>{machineProfile ? machineProfile.machineProgram : '—'}</ThemedText>
+          </View>
+        </View>
+
+        {recipe.media?.image ? (
+          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
+            <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
+          </View>
+        ) : null}
+
+        <View style={styles.metaRow}>
+          {recipe.serves ? (
+            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>👥 {recipe.serves}</ThemedText>
+            </View>
+          ) : null}
+          <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+            <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>⏱ {recipe.time.total}</ThemedText>
+          </View>
+          {recipe.garnish ? (
+            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
+              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>✨ {recipe.garnish}</ThemedText>
+            </View>
+          ) : null}
+        </View>
+      </View>
+
+      {localizedDrinkVisual ? (
+        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeVisualSectionTitle')}</ThemedText>
+          <View style={[styles.drinkVisualCard, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
+            <ThemedText style={styles.drinkVisualEmoji}>{localizedDrinkVisual.emoji}</ThemedText>
+            <View style={styles.drinkVisualCopy}>
+              <ThemedText style={styles.drinkVisualTitle}>{localizedDrinkVisual.title}</ThemedText>
+              <ThemedText style={[styles.drinkVisualSubtitle, { color: colors.textMuted }]}>
+                {localizedDrinkVisual.subtitle}
+              </ThemedText>
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeIngredientsSectionTitle')}</ThemedText>
+        {ingredientRows.map((item, index) => (
+          <View key={`${item.item}-${index}`} style={[styles.ingredientRow, { borderBottomColor: colors.border }]}>
+            <ThemedText style={[styles.ingredientQty, { color: colors.primary }]}>
+              {item.quantity || '•'}
+            </ThemedText>
+            <View style={styles.ingredientTextWrap}>
+              <ThemedText style={styles.ingredientItem}>{item.item}</ThemedText>
+              {item.note ? (
+                <ThemedText style={[styles.ingredientNote, { color: colors.textMuted }]}>{item.note}</ThemedText>
+              ) : null}
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeMachineSectionTitle')}</ThemedText>
+
+        {machineProfile ? (
+          <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}> 
+            {typeof machineProfile.estimatedAbvPercent === 'number' ? (
+              <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
+            ) : null}
+            <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile.estimatedRunTime}</ThemedText>
+          </View>
+        ) : null}
 
         {machineProfile ? (
           <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
@@ -377,15 +397,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     marginBottom: 20,
-    alignItems: 'center',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 2,
   },
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 14,
+  },
+  heroTopCopy: {
+    flex: 1,
+  },
   detailEmoji: {
-    fontSize: 64,
-    marginBottom: 8,
+    fontSize: 48,
+    lineHeight: 56,
+  },
+  heroMetaGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 16,
+  },
+  heroInfoCard: {
+    width: '48%',
+    borderRadius: 14,
+    padding: 12,
+    gap: 4,
+  },
+  heroInfoLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  heroInfoValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 20,
   },
   heroImageFrame: {
     width: '100%',
@@ -401,13 +453,10 @@ const styles = StyleSheet.create({
   },
   detailTitle: {
     marginBottom: 8,
-    textAlign: 'center',
   },
   detailDescription: {
     fontSize: 15,
-    textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 12,
   },
   metaRow: {
     width: '100%',
@@ -491,13 +540,13 @@ const styles = StyleSheet.create({
   machineSwitcher: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   machineProfileSummary: {
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
-    gap: 2,
+    gap: 4,
   },
   switcherButton: {
     flex: 1,
