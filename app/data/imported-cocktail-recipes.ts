@@ -108,6 +108,8 @@ function cocktailRecipe(input: {
   };
 }
 
+// Catalogue source de vérité: uniquement des recettes autonomes réellement exposées.
+// Les variantes de machine restent portées par `machineProfiles`, pas par des recettes dupliquées.
 export const importedCocktailRecipes: Recipe[] = [
   cocktailRecipe({
     id: 'a1-margarita',
