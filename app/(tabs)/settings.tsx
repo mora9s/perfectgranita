@@ -1,12 +1,25 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useLanguage, type AppLanguage } from '@/app/language/language-context';
 import { useTheme, type ThemePreference } from '@/app/theme/theme-context';
 
+const DONATION_URL = 'https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_HOSTED_BUTTON_ID';
+
 export default function SettingsScreen() {
   const { colors, themePreference, setThemePreference, resolvedTheme } = useTheme();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
+
+  const handleDonatePress = async () => {
+    const canOpen = await Linking.canOpenURL(DONATION_URL);
+
+    if (!canOpen) {
+      Alert.alert(t('donationOpenErrorTitle'), t('donationOpenErrorMessage'));
+      return;
+    }
+
+    await Linking.openURL(DONATION_URL);
+  };
 
   const themeOptions: Array<{ value: ThemePreference; label: string }> = [
     { value: 'light', label: t('themeLight') },
@@ -87,6 +100,21 @@ export default function SettingsScreen() {
           {t('currentLanguageLabel')}: {availableLanguages.find((option) => option.value === language)?.label}
         </ThemedText>
       </View>
+
+      <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+        <ThemedText type="defaultSemiBold">{t('donationSectionTitle')}</ThemedText>
+        <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
+          {t('donationDescription')}
+        </ThemedText>
+        <Pressable
+          style={[styles.donateButton, { backgroundColor: colors.primary, borderColor: colors.primary }]}
+          onPress={handleDonatePress}
+        >
+          <ThemedText style={[styles.donateButtonText, { color: colors.primaryText }]}>
+            {t('donationButtonLabel')}
+          </ThemedText>
+        </Pressable>
+      </View>
     </ThemedView>
   );
 }
@@ -137,5 +165,16 @@ const styles = StyleSheet.create({
   },
   helper: {
     fontSize: 13,
+  },
+  donateButton: {
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 12,
+    borderColor: 'transparent',
+    alignItems: 'center',
+  },
+  donateButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

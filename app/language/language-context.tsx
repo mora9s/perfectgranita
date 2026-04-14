@@ -87,6 +87,11 @@ const DICTIONARY = {
     modalDescriptionPlaceholder: 'Décrivez votre recette...',
     modalCreateButton: 'Créer la recette',
     modalDefaultDescription: 'Ma recette personnalisée',
+    donationSectionTitle: 'Soutenir le projet',
+    donationDescription: 'Si vous aimez l’app, un petit don m’aide à continuer les améliorations.',
+    donationButtonLabel: 'Faire un don',
+    donationOpenErrorTitle: 'Don indisponible',
+    donationOpenErrorMessage: 'Impossible d’ouvrir le lien de don pour le moment.',
   },
   en: {
     settingsTitle: '⚙️ Settings',
@@ -170,6 +175,11 @@ const DICTIONARY = {
     modalDescriptionPlaceholder: 'Describe your recipe...',
     modalCreateButton: 'Create recipe',
     modalDefaultDescription: 'My custom recipe',
+    donationSectionTitle: 'Support the app',
+    donationDescription: 'If you like the app, a small donation helps fund future improvements.',
+    donationButtonLabel: 'Make a donation',
+    donationOpenErrorTitle: 'Donation unavailable',
+    donationOpenErrorMessage: 'Unable to open the donation link right now.',
   },
 } as const;
 
