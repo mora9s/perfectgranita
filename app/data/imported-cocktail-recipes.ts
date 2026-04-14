@@ -303,6 +303,7 @@ export const importedCocktailRecipes: Recipe[] = [
       en: {
         name: 'Frozen Aperol Spritz',
         description: 'Aperol, prosecco and orange balanced for a granita texture.',
+        notes: ['ABV calculated with Aperol at 12.5% and Prosecco at 11%.'],
       },
     },
     notes: ['ABV calcule avec Aperol 12,5% et Prosecco 11%.'],
@@ -437,6 +438,7 @@ export const importedCocktailRecipes: Recipe[] = [
       en: {
         name: 'Red Spritz (Monin)',
         description: 'Wild strawberry, Aperol and prosecco.',
+        notes: ['Base inspired by the official Ninja x Monin recipe.'],
       },
     },
     notes: ['Base inspiree recette officielle Ninja x Monin.'],
@@ -461,6 +463,10 @@ export const importedCocktailRecipes: Recipe[] = [
       en: {
         name: 'Frozen Rosé',
         description: 'Wild strawberry and rosé wine, with ABV depending on the wine used.',
+        notes: [
+          'Actual ABV depends on the alcohol content of the rosé wine used.',
+          'Approximate ratio: final ABV ~= 0.65 x rosé wine ABV.'
+        ],
       },
     },
     notes: [
