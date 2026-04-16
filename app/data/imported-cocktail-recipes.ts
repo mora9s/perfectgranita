@@ -716,6 +716,35 @@ export const importedCocktailRecipes: Recipe[] = [
       ingredient('Eau gazeuse', 180, 200),
     ],
   }),
+  cocktailRecipe({
+    id: 'vanilla-cream-slush',
+    name: 'Vanilla Cream Slush',
+    emoji: '🥛',
+    description: 'Crémeux vanille, doux et onctueux, version milkshake sans alcool.',
+    abv: 0,
+    garnish: 'Chantilly et gousse de vanille',
+    drinkCategory: 'autre',
+    i18n: {
+      en: {
+        name: 'Vanilla Cream Slush',
+        description: 'Creamy vanilla milk slush, sweet and smooth, non-alcoholic milkshake style.',
+      },
+    },
+    machineProfileOverrides: {
+      slushiProgram: 'Milkshake',
+      maxProgram: 'Milkshake',
+      slushiVolumeMl: 1010,
+      maxVolumeMl: 1220,
+    },
+    notes: ['Texture crémeuse optimale', 'Servir rapidement pour éviter la mousse'],
+    image: require('@/assets/images/vanilla-cream-slush.jpg'),
+    ingredients: [
+      ingredient('Lait entier', 700, 850),
+      ingredient('Crème liquide', 150, 200),
+      ingredient('Sirop de vanille', 120, 120),
+      ingredient('Sucre (40 g / 50 g)', 40, 50),
+    ],
+  }),
 ];
 
 export const importedCocktailRecipeCount = importedCocktailRecipes.length;
