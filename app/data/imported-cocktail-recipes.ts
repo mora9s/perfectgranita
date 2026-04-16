@@ -353,6 +353,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Tequila, orange and grenadine.',
       },
     },
+    image: require('@/assets/images/a10-tequila-sunrise.jpg'),
     ingredients: [
       ingredient('Tequila (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Jus d orange', 950, 1665),
