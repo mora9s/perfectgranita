@@ -1,4 +1,5 @@
-import { Image, Pressable, StyleSheet, View, Vibration } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
@@ -24,7 +25,7 @@ export default function IndexScreen() {
   const { t } = useLanguage();
 
   const handleMachineSelect = (machineId: MachineId) => {
-    Vibration.vibrate(10);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedMachineId(machineId);
     router.push('/(tabs)/explore');
   };
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
   },
   machineImage: {
     width: '100%',
-    height: 158,
+    height: 166,
     marginBottom: 8,
     borderRadius: 10,
   },
