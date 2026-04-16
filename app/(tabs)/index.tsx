@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
@@ -24,6 +24,7 @@ export default function IndexScreen() {
   const { t } = useLanguage();
 
   const handleMachineSelect = (machineId: MachineId) => {
+    Vibration.vibrate(10);
     setSelectedMachineId(machineId);
     router.push('/(tabs)/explore');
   };
@@ -108,12 +109,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 4,
-    paddingBottom: 4,
+    paddingBottom: 2,
   },
   header: {
-    marginHorizontal: 12,
+    marginHorizontal: 10,
     paddingTop: 10,
-    paddingBottom: 10,
+    paddingBottom: 8,
     paddingHorizontal: 14,
     borderRadius: 18,
     shadowOffset: { width: 0, height: 2 },
@@ -130,15 +131,15 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 8,
+    paddingHorizontal: 10,
+    paddingTop: 6,
     paddingBottom: 0,
-    gap: 10,
+    gap: 8,
   },
   machineCard: {
     flex: 1,
     borderRadius: 16,
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
   },
   machineImage: {
     width: '100%',
-    height: 144,
+    height: 158,
     marginBottom: 8,
     borderRadius: 10,
   },
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   machineMeta: {
     fontSize: 13,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   },
   chooseButton: {
     borderRadius: 12,
-    paddingVertical: 9,
+    paddingVertical: 8,
     alignItems: 'center',
   },
   chooseButtonText: {
