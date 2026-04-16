@@ -645,6 +645,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Passion fruit, ginger and pineapple with white rum.',
       },
     },
+    image: require('@/assets/images/b9-tiki-taka-monin-rum.jpg'),
     ingredients: [
       ingredient('Sirop Monin Passion', 120, 210),
       ingredient('Concentre Monin Gingembre', 40, 70),
