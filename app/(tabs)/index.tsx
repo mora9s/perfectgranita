@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -15,14 +15,13 @@ const MACHINE_IMAGES: Record<MachineId, any> = {
 };
 
 function MachineIllustration({ machineId }: { machineId: MachineId }) {
-  return <Image source={MACHINE_IMAGES[machineId]} style={styles.machineImage} resizeMode="cover" />;
+  return <Image source={MACHINE_IMAGES[machineId]} style={styles.machineImage} resizeMode="contain" />;
 }
 
 export default function IndexScreen() {
   const { selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t } = useLanguage();
-  const insets = useSafeAreaInsets();
 
   const handleMachineSelect = (machineId: MachineId) => {
     setSelectedMachineId(machineId);
@@ -30,20 +29,8 @@ export default function IndexScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={['top', 'left', 'right', 'bottom']}
-    >
-      <ThemedView
-        style={[
-          styles.container,
-          {
-            backgroundColor: colors.background,
-            paddingTop: Math.max(insets.top, 12),
-            paddingBottom: insets.bottom + 8,
-          },
-        ]}
-      >
+    <SafeAreaView style={styles.safeArea}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.background }]}> 
         <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
           <ThemedText type="title" style={[styles.title, { color: colors.primary }]}> 
             {t('homeTitle')}
@@ -84,7 +71,7 @@ export default function IndexScreen() {
                         },
                       ]}
                     >
-                      <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}>
+                      <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}> 
                         {t('homeSelectedMachine')}
                       </ThemedText>
                     </View>
@@ -94,14 +81,14 @@ export default function IndexScreen() {
                 <MachineIllustration machineId={machine.id} />
 
                 <View style={styles.machineMetaRow}>
-                  <ThemedText style={[styles.machineMeta, { color: colors.textMuted }]}>
+                  <ThemedText style={[styles.machineMeta, { color: colors.textMuted }]}> 
                     {t('homeCapacityLabel')}: {machine.capacityLiters}L
                   </ThemedText>
                   <ThemedText style={styles.machineEmoji}>{machine.emoji}</ThemedText>
                 </View>
 
                 <View style={[styles.chooseButton, { backgroundColor: colors.primary }]}> 
-                  <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}>
+                  <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}> 
                     {t('homeChooseButton')}
                   </ThemedText>
                 </View>
@@ -120,46 +107,49 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   header: {
-    marginHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    marginHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 14,
+    borderRadius: 18,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowRadius: 8,
+    elevation: 3,
   },
   title: {
-    marginBottom: 6,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    gap: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 0,
+    gap: 10,
   },
   machineCard: {
     flex: 1,
-    borderRadius: 18,
-    padding: 14,
+    borderRadius: 16,
+    padding: 12,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   machineName: {
     lineHeight: 24,
@@ -175,7 +165,7 @@ const styles = StyleSheet.create({
   },
   machineImage: {
     width: '100%',
-    height: 150,
+    height: 144,
     marginBottom: 8,
     borderRadius: 10,
   },
@@ -193,11 +183,11 @@ const styles = StyleSheet.create({
   },
   chooseButton: {
     borderRadius: 12,
-    paddingVertical: 10,
+    paddingVertical: 9,
     alignItems: 'center',
   },
   chooseButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
 });
