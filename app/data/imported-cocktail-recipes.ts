@@ -374,6 +374,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Vodka, orange liqueur, cranberry and lime.',
       },
     },
+    image: require('@/assets/images/a11-cosmopolitan.jpg'),
     ingredients: [
       ingredient('Vodka (40%)', 260, 455, { abvPercent: 40 }),
       ingredient('Liqueur orange (40%)', 130, 230, { abvPercent: 40 }),
