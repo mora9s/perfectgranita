@@ -329,6 +329,7 @@ export const importedCocktailRecipes: Recipe[] = [
         notes: ['ABV calculated with Aperol at 12.5% and Prosecco at 11%.'],
       },
     },
+    image: require('@/assets/images/spritz-glace.jpg'),
     notes: ['ABV calcule avec Aperol 12,5% et Prosecco 11%.'],
     ingredients: [
       ingredient('Aperol (12.5%)', 400, 700, { abvPercent: 12.5 }),
