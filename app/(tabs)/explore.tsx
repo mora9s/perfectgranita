@@ -1,5 +1,5 @@
 import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -14,6 +14,8 @@ import type { Recipe, RecipeAlcoholCategory } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
 
 type MoninFilter = 'all' | 'monin' | 'non-monin';
+type DrinkTypeFilter = 'all' | 'cocktailAlcool' | 'cocktailSans' | 'autre';
+type OptionalDrinkTypeFilter = Exclude<DrinkTypeFilter, 'all'>;
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -82,14 +84,34 @@ function RecipeCard({ recipe, machineId, language, colors, resolvedTheme }: Reci
   );
 }
 
+function isRecipeDrinkType(value: unknown): value is OptionalDrinkTypeFilter {
+  return value === 'cocktailAlcool' || value === 'cocktailSans' || value === 'autre';
+}
+
+function getDrinkType(recipe: Recipe): DrinkTypeFilter {
+  const withOptionalDrinkType = recipe as Recipe & { drinkCategory?: unknown };
+  if (isRecipeDrinkType(withOptionalDrinkType.drinkCategory)) {
+    return withOptionalDrinkType.drinkCategory;
+  }
+
+  return recipe.alcoholCategory ? 'cocktailAlcool' : 'autre';
+}
+
 export default function ExploreScreen() {
   const { recipes } = useRecipes();
   const { selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
+  const [activeDrinkType, setActiveDrinkType] = useState<DrinkTypeFilter>('all');
   const [activeAlcohol, setActiveAlcohol] = useState<RecipeAlcoholCategory | 'all'>('all');
   const [activeMonin, setActiveMonin] = useState<MoninFilter>('all');
   const [filtersExpanded, setFiltersExpanded] = useState(false);
+
+  useEffect(() => {
+    if (activeDrinkType !== 'cocktailAlcool' && activeAlcohol !== 'all') {
+      setActiveAlcohol('all');
+    }
+  }, [activeDrinkType, activeAlcohol]);
 
   const alcoholLabels: Record<RecipeAlcoholCategory, string> = {
     tequila: t('alcoholTequila'),
@@ -103,30 +125,54 @@ export default function ExploreScreen() {
   };
 
   const alcoholOptions = useMemo(() => {
-    const values = Array.from(
-      new Set(recipes.map((recipe) => recipe.alcoholCategory).filter(Boolean))
+    return Array.from(
+      new Set(
+        recipes
+          .filter((recipe) => getDrinkType(recipe) === 'cocktailAlcool')
+          .map((recipe) => recipe.alcoholCategory)
+          .filter(Boolean)
+      )
     ) as RecipeAlcoholCategory[];
-
-    return values;
   }, [recipes]);
+
+  const drinkTypeOptions: Array<{ key: DrinkTypeFilter; label: string }> = [
+    { key: 'all', label: t('exploreDrinkTypeAll') },
+    { key: 'cocktailAlcool', label: t('exploreDrinkTypeAlcoholicCocktail') },
+    { key: 'cocktailSans', label: t('exploreDrinkTypeNonAlcoholicCocktail') },
+    { key: 'autre', label: t('exploreDrinkTypeOther') },
+  ];
+
+  const moninOptions: Array<{ key: MoninFilter; label: string }> = [
+    { key: 'all', label: t('exploreAll') },
+    { key: 'monin', label: t('exploreMoninLabel') },
+    { key: 'non-monin', label: t('exploreWithoutMonin') },
+  ];
 
   const filteredRecipes = useMemo(() => {
     return recipes.filter((recipe) => {
-      const alcoholMatch = activeAlcohol === 'all' || recipe.alcoholCategory === activeAlcohol;
+      const drinkTypeMatch = activeDrinkType === 'all' ? true : getDrinkType(recipe) === activeDrinkType;
+      const alcoholMatch =
+        activeDrinkType !== 'cocktailAlcool' || activeAlcohol === 'all' || recipe.alcoholCategory === activeAlcohol;
       const moninMatch =
         activeMonin === 'all' ||
         (activeMonin === 'monin' && recipe.usesMonin === true) ||
         (activeMonin === 'non-monin' && recipe.usesMonin !== true);
 
-      return alcoholMatch && moninMatch;
+      return drinkTypeMatch && alcoholMatch && moninMatch;
     });
-  }, [activeAlcohol, activeMonin, recipes]);
+  }, [activeDrinkType, activeAlcohol, activeMonin, recipes]);
 
-  const filtersActive = activeAlcohol !== 'all' || activeMonin !== 'all';
+  const filtersActive = activeDrinkType !== 'all' || activeAlcohol !== 'all' || activeMonin !== 'all';
+
+  const handleResetFilters = () => {
+    setActiveDrinkType('all');
+    setActiveAlcohol('all');
+    setActiveMonin('all');
+  };
 
   return (
     <ThemedView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }] }>
         <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}> 
           {t('exploreTitle')}
         </ThemedText>
@@ -169,15 +215,12 @@ export default function ExploreScreen() {
           <View style={styles.filtersHeaderRow}>
             <Pressable style={styles.filtersToggle} onPress={() => setFiltersExpanded((value) => !value)}>
               <ThemedText type="defaultSemiBold">{t('exploreFiltersTitle')}</ThemedText>
-              <ThemedText style={[styles.filtersToggleIcon, { color: colors.textMuted }]}>
+              <ThemedText style={[styles.filtersToggleIcon, { color: colors.textMuted }]}> 
                 {filtersExpanded ? '▴' : '▾'}
               </ThemedText>
             </Pressable>
             {filtersActive ? (
-              <Pressable onPress={() => {
-                setActiveAlcohol('all');
-                setActiveMonin('all');
-              }}>
+              <Pressable onPress={handleResetFilters}>
                 <ThemedText type="link">{t('exploreReset')}</ThemedText>
               </Pressable>
             ) : null}
@@ -192,32 +235,22 @@ export default function ExploreScreen() {
           {filtersExpanded ? (
             <>
               <View style={styles.filterGroup}>
-                <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreAlcoholLabel')}</ThemedText>
+                <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreDrinkTypeLabel')}</ThemedText>
                 <View style={styles.filterChipsRow}>
-                  <Pressable
-                    style={[
-                      styles.filterChip,
-                      { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                      activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
-                    ]}
-                    onPress={() => setActiveAlcohol('all')}
-                  >
-                    <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}>{t('exploreAll')}</ThemedText>
-                  </Pressable>
-                  {alcoholOptions.map((alcohol) => {
-                    const selected = activeAlcohol === alcohol;
+                  {drinkTypeOptions.map((option) => {
+                    const selected = activeDrinkType === option.key;
                     return (
                       <Pressable
-                        key={alcohol}
+                        key={option.key}
                         style={[
                           styles.filterChip,
                           { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                           selected && { backgroundColor: colors.primary, borderColor: colors.primary },
                         ]}
-                        onPress={() => setActiveAlcohol(alcohol)}
+                        onPress={() => setActiveDrinkType(option.key)}
                       >
-                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
-                          {alcoholLabels[alcohol]}
+                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
+                          {option.label}
                         </ThemedText>
                       </Pressable>
                     );
@@ -225,14 +258,48 @@ export default function ExploreScreen() {
                 </View>
               </View>
 
+              {activeDrinkType === 'cocktailAlcool' ? (
+                <View style={styles.filterGroup}>
+                  <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreAlcoholLabel')}</ThemedText>
+                  <View style={styles.filterChipsRow}>
+                    <Pressable
+                      style={[
+                        styles.filterChip,
+                        { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                        activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
+                      ]}
+                      onPress={() => setActiveAlcohol('all')}
+                    >
+                      <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}> 
+                        {t('exploreAll')}
+                      </ThemedText>
+                    </Pressable>
+                    {alcoholOptions.map((alcohol) => {
+                      const selected = activeAlcohol === alcohol;
+                      return (
+                        <Pressable
+                          key={alcohol}
+                          style={[
+                            styles.filterChip,
+                            { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                            selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                          ]}
+                          onPress={() => setActiveAlcohol(alcohol)}
+                        >
+                          <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
+                            {alcoholLabels[alcohol]}
+                          </ThemedText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+              ) : null}
+
               <View style={styles.filterGroup}>
                 <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreMoninLabel')}</ThemedText>
                 <View style={styles.filterChipsRow}>
-                  {[
-                    { key: 'all', label: t('exploreAll') },
-                    { key: 'monin', label: t('exploreMoninLabel') },
-                    { key: 'non-monin', label: t('exploreWithoutMonin') },
-                  ].map((option) => {
+                  {moninOptions.map((option) => {
                     const selected = activeMonin === option.key;
                     return (
                       <Pressable
@@ -242,9 +309,9 @@ export default function ExploreScreen() {
                           { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                           selected && { backgroundColor: colors.primary, borderColor: colors.primary },
                         ]}
-                        onPress={() => setActiveMonin(option.key as MoninFilter)}
+                        onPress={() => setActiveMonin(option.key)}
                       >
-                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}>
+                        <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                           {option.label}
                         </ThemedText>
                       </Pressable>
