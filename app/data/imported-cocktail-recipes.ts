@@ -34,21 +34,35 @@ function ingredient(
   };
 }
 
-function machineProfiles(abv: number, options?: { maxProgram?: string; maxTime?: string }): Recipe['machineProfiles'] {
+function machineProfiles(
+  abv: number,
+  options?: {
+    slushiProgram?: string;
+    maxProgram?: string;
+    slushiVolumeMl?: number;
+    maxVolumeMl?: number;
+    slushiTime?: string;
+    maxTime?: string;
+  },
+): Recipe['machineProfiles'] {
   const maxProgram = options?.maxProgram ?? 'Frozen Cocktail';
   const maxTime = options?.maxTime ?? '~20-40 min';
+  const slushiProgram = options?.slushiProgram ?? 'Cocktail glace';
+  const slushiVolume = options?.slushiVolumeMl ?? 1890;
+  const maxVolume = options?.maxVolumeMl ?? 3310;
+  const slushiTime = options?.slushiTime ?? '~55 min (batch plein)';
 
   return {
     slushi: {
-      machineProgram: 'Cocktail glace',
-      fillVolumeMl: 1890,
-      estimatedRunTime: '~55 min (batch plein)',
+      machineProgram: slushiProgram,
+      fillVolumeMl: slushiVolume,
+      estimatedRunTime: slushiTime,
       estimatedAbvPercent: abv,
       steps: DEFAULT_SLUSHI_STEPS,
     },
     'slushi-max': {
       machineProgram: maxProgram,
-      fillVolumeMl: 3310,
+      fillVolumeMl: maxVolume,
       estimatedRunTime: maxTime,
       estimatedAbvPercent: abv,
       steps: DEFAULT_SLUSHI_MAX_STEPS,
@@ -68,6 +82,14 @@ function cocktailRecipe(input: {
   notes?: string[];
   i18n?: Recipe['i18n'];
   image?: any;
+  machineProfileOverrides?: {
+    slushiProgram?: string;
+    maxProgram?: string;
+    slushiVolumeMl?: number;
+    maxVolumeMl?: number;
+    slushiTime?: string;
+    maxTime?: string;
+  };
   ingredients: RecipeIngredient[];
 }): Recipe {
   return {
@@ -88,7 +110,7 @@ function cocktailRecipe(input: {
     usesMonin: input.usesMonin ?? false,
     notes: input.notes,
     i18n: input.i18n,
-    machineProfiles: machineProfiles(input.abv),
+    machineProfiles: machineProfiles(input.abv, input.machineProfileOverrides),
     media: {
       image: input.image,
       imageAlt: `Photo de service pour ${input.name}`,
@@ -215,6 +237,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Dry, herbal profile with a light touch of sweetness.',
       },
     },
+    image: require('@/assets/images/gin-tonic.jpg'),
     ingredients: [
       ingredient('Gin (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Tonic non light', 1250, 2190),
@@ -379,6 +402,36 @@ export const importedCocktailRecipes: Recipe[] = [
       ingredient('Jus de citron vert', 120, 210),
       ingredient('Sirop de sucre 1:1', 60, 105),
       ingredient('Eau froide', 190, 335),
+    ],
+  }),
+  cocktailRecipe({
+    id: 'a13-tropical-frost-punch',
+    name: 'Tropical Frost Punch',
+    emoji: '🍹',
+    description: 'Punch d\'ananas, mangue et coco à base de rhum blanc.',
+    abv: 5.5,
+    garnish: 'Quartier de citron vert et feuille de menthe',
+    alcoholCategory: 'rhum',
+    i18n: {
+      en: {
+        name: 'Tropical Frost Punch',
+        description: 'White rum-based pineapple, mango and coconut punch.',
+      },
+    },
+    image: require('@/assets/images/tropical-frost-punch.jpg'),
+    machineProfileOverrides: {
+      slushiProgram: 'Frozen Cocktail',
+      maxProgram: 'Frozen Cocktail',
+      slushiVolumeMl: 1000,
+      maxVolumeMl: 1500,
+    },
+    ingredients: [
+      ingredient('Jus d\'ananas', 400, 600),
+      ingredient('Nectar de mangue', 300, 450),
+      ingredient('Eau de coco', 150, 250),
+      ingredient('Rhum blanc (40%)', 120, 150, { abvPercent: 40 }),
+      ingredient('Jus de citron vert', 30, 50),
+      ingredient('Sirop de sucre', 40, 60),
     ],
   }),
   cocktailRecipe({
