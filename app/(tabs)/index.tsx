@@ -106,16 +106,18 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 12,
-    gap: 10,
+    paddingTop: 8,
+    paddingBottom: 10,
+    gap: 8,
+    justifyContent: 'space-between',
   },
   machineCard: {
-    borderRadius: 18,
-    padding: 12,
+    borderRadius: 16,
+    padding: 10,
     borderWidth: 1,
+    flex: 1,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   machineName: {
-    lineHeight: 28,
+    lineHeight: 24,
   },
   selectedPill: {
     paddingHorizontal: 10,
@@ -142,28 +144,28 @@ const styles = StyleSheet.create({
   },
   machineImage: {
     width: '100%',
-    height: 130,
-    marginBottom: 8,
+    height: 108,
+    marginBottom: 6,
   },
   machineMetaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   machineMeta: {
-    fontSize: 14,
+    fontSize: 13,
   },
   machineEmoji: {
     fontSize: 20,
   },
   chooseButton: {
     borderRadius: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     alignItems: 'center',
   },
   chooseButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
   },
 });
