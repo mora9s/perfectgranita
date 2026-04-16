@@ -707,6 +707,7 @@ export const importedCocktailRecipes: Recipe[] = [
       maxVolumeMl: 1200,
     },
     notes: ['Ne pas ajouter de feuilles entières', 'Sucre conforme'],
+    image: require('@/assets/images/virgin-mojito-slush.jpg'),
     ingredients: [
       ingredient('Eau', 500, 600),
       ingredient('Jus de citron vert', 120, 150),
