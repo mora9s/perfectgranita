@@ -399,6 +399,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Rum and regular cola, simple and effective.',
       },
     },
+    image: require('@/assets/images/a12-rum-cola.jpg'),
     ingredients: [
       ingredient('Rhum (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Cola non light', 1200, 2100),
