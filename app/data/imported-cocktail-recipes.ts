@@ -666,6 +666,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Monin Orange Spritz, wild strawberry and vodka.',
       },
     },
+    image: require('@/assets/images/b10-orange-spritz-fraise-monin-vodka.jpg'),
     ingredients: [
       ingredient('Sirop Monin Orange Spritz', 250, 440),
       ingredient('Sirop Monin Fraise des bois', 170, 300),
