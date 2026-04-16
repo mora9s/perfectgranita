@@ -260,6 +260,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Tequila and grapefruit, diluted for machine-friendly texture.',
       },
     },
+    image: require('@/assets/images/a6-paloma.jpg'),
     ingredients: [
       ingredient('Tequila (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Jus de pamplemousse', 900, 1575),
