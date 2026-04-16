@@ -495,6 +495,7 @@ export const importedCocktailRecipes: Recipe[] = [
         notes: ['Base inspired by the official Ninja x Monin recipe.'],
       },
     },
+    image: require('@/assets/images/b3-red-spritz-monin.jpg'),
     notes: ['Base inspiree recette officielle Ninja x Monin.'],
     ingredients: [
       ingredient('Sirop Monin Fraise des bois', 284, 500),
@@ -523,6 +524,7 @@ export const importedCocktailRecipes: Recipe[] = [
         ],
       },
     },
+    image: require('@/assets/images/b4-frose-monin.jpg'),
     notes: [
       'ABV reel dependant du degre du vin rose utilise.',
       'Approximation rapport: ABV final ~= 0,65 x ABV du vin rose.'
@@ -548,6 +550,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Cola and Monin Popcorn with white rum.',
       },
     },
+    image: require('@/assets/images/b5-movie-cola-monin-rum.jpg'),
     ingredients: [
       ingredient('Sirop Monin Cola', 250, 440),
       ingredient('Sirop Monin Popcorn', 80, 140),
@@ -570,6 +573,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Cloudy lemonade, bubble gum and vodka.',
       },
     },
+    image: require('@/assets/images/b6-bubble-gum-lemonade-monin-vodka.jpg'),
     ingredients: [
       ingredient('Concentre Monin Cloudy Lemonade', 250, 440),
       ingredient('Sirop Monin Bubble Gum', 80, 140),
@@ -592,6 +596,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Monin The Raspberry, blackcurrant, green apple and gin.',
       },
     },
+    image: require('@/assets/images/b7-pomme-framboise-cassis-monin-gin.jpg'),
     ingredients: [
       ingredient('Concentre Monin The Framboise', 190, 335),
       ingredient('Fruit Monin Cassis', 190, 335),
@@ -615,6 +620,7 @@ export const importedCocktailRecipes: Recipe[] = [
         description: 'Cucumber, elderflower, apple juice and gin.',
       },
     },
+    image: require('@/assets/images/b8-garden-monin-gin.jpg'),
     ingredients: [
       ingredient('Pure by Monin Concombre', 160, 280),
       ingredient('Sirop Monin Fleur de sureau', 160, 280),
