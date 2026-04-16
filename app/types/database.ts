@@ -60,6 +60,8 @@ export type RecipeAlcoholCategory =
   | 'mixte'
   | 'autre';
 
+export type RecipeDrinkCategory = 'cocktailAlcool' | 'cocktailSans' | 'autre';
+
 export interface Recipe {
   id: string;
   name: string;
@@ -75,6 +77,7 @@ export interface Recipe {
   serves?: string;
   garnish?: string;
   alcoholCategory?: RecipeAlcoholCategory;
+  drinkCategory?: RecipeDrinkCategory;
   usesMonin?: boolean;
   tips?: string[];
   notes?: string[];

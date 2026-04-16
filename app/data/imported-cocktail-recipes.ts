@@ -1,4 +1,9 @@
-import type { Recipe, RecipeAlcoholCategory, RecipeIngredient } from '@/app/types/database';
+import type {
+  Recipe,
+  RecipeAlcoholCategory,
+  RecipeDrinkCategory,
+  RecipeIngredient,
+} from '@/app/types/database';
 
 const DEFAULT_SLUSHI_STEPS: string[] = [
   'Refroidir tous les liquides entre 4C et 8C avant de melanger.',
@@ -77,7 +82,8 @@ function cocktailRecipe(input: {
   description: string;
   abv: number;
   garnish: string;
-  alcoholCategory: RecipeAlcoholCategory;
+  alcoholCategory?: RecipeAlcoholCategory;
+  drinkCategory?: RecipeDrinkCategory;
   usesMonin?: boolean;
   notes?: string[];
   i18n?: Recipe['i18n'];
@@ -107,6 +113,7 @@ function cocktailRecipe(input: {
     serves: 'Slushi: 7-8 verres | Slushi Max: ~12 verres',
     garnish: input.garnish,
     alcoholCategory: input.alcoholCategory,
+    drinkCategory: input.drinkCategory,
     usesMonin: input.usesMonin ?? false,
     notes: input.notes,
     i18n: input.i18n,
@@ -677,6 +684,35 @@ export const importedCocktailRecipes: Recipe[] = [
       ingredient('Sirop Monin Fraise des bois', 170, 300),
       ingredient('Vodka (40%)', 320, 560, { abvPercent: 40 }),
       ingredient('Eau plate', 1150, 2010),
+    ],
+  }),
+  cocktailRecipe({
+    id: 'virgin-mojito-slush',
+    name: 'Virgin mojito (slush)',
+    emoji: '🌿',
+    description: 'Version sans alcool, fraiche et rafraîchissante, type slush.',
+    abv: 0,
+    garnish: 'Menthe + citron vert',
+    drinkCategory: 'cocktailSans',
+    i18n: {
+      en: {
+        name: 'Virgin Mojito (slush)',
+        description: 'No-alcohol style, fresh and minty iced slushy.',
+      },
+    },
+    machineProfileOverrides: {
+      slushiProgram: 'Slush',
+      maxProgram: 'SlushAssist',
+      slushiVolumeMl: 1000,
+      maxVolumeMl: 1200,
+    },
+    notes: ['Ne pas ajouter de feuilles entières', 'Sucre conforme'],
+    ingredients: [
+      ingredient('Eau', 500, 600),
+      ingredient('Jus de citron vert', 120, 150),
+      ingredient('Sirop de sucre 1:1', 120, 150, { abvPercent: 0 }),
+      ingredient('Sirop de menthe', 80, 100),
+      ingredient('Eau gazeuse', 180, 200),
     ],
   }),
 ];
