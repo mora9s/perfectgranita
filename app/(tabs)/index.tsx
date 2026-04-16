@@ -1,4 +1,4 @@
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -30,15 +30,15 @@ export default function IndexScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}> 
+        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
           {t('homeTitle')}
         </ThemedText>
-        <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}> 
+        <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>
           {t('homeSubtitle')}
         </ThemedText>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
         {MACHINE_OPTIONS.map((machine) => {
           const isSelected = machine.id === selectedMachineId;
 
@@ -57,7 +57,7 @@ export default function IndexScreen() {
                   {machine.name}
                 </ThemedText>
                 {isSelected ? (
-                  <View style={[styles.selectedPill, { backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#EDE9FE' }]}>
+                  <View style={[styles.selectedPill, { backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#EDE9FE' }]}> 
                     <ThemedText style={[styles.selectedPillText, { color: colors.primary }]}>{t('homeSelectedMachine')}</ThemedText>
                   </View>
                 ) : null}
@@ -70,13 +70,13 @@ export default function IndexScreen() {
                 <ThemedText style={styles.machineEmoji}>{machine.emoji}</ThemedText>
               </View>
 
-              <View style={[styles.chooseButton, { backgroundColor: colors.primary }]}>
+              <View style={[styles.chooseButton, { backgroundColor: colors.primary }]}> 
                 <ThemedText style={[styles.chooseButtonText, { color: colors.primaryText }]}>{t('homeChooseButton')}</ThemedText>
               </View>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
     </ThemedView>
   );
 }
@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingTop: 42,
+    paddingBottom: 14,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     shadowOffset: { width: 0, height: 2 },
@@ -104,13 +104,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   content: {
-    padding: 16,
-    paddingBottom: 24,
-    gap: 12,
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 12,
+    gap: 10,
   },
   machineCard: {
     borderRadius: 18,
-    padding: 16,
+    padding: 12,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -124,7 +126,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   machineName: {
     lineHeight: 28,
@@ -140,14 +142,14 @@ const styles = StyleSheet.create({
   },
   machineImage: {
     width: '100%',
-    height: 180,
-    marginBottom: 12,
+    height: 130,
+    marginBottom: 8,
   },
   machineMetaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   machineMeta: {
     fontSize: 14,
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
   },
   chooseButton: {
     borderRadius: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   chooseButtonText: {
