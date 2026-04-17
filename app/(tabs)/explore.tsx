@@ -164,6 +164,30 @@ export default function ExploreScreen() {
 
   const filtersActive = activeDrinkType !== 'all' || activeAlcohol !== 'all' || activeMonin !== 'all';
 
+  const activeFilterLabels = useMemo(() => {
+    const labels: string[] = [];
+
+    if (activeDrinkType !== 'all') {
+      const drinkTypeLabel = drinkTypeOptions.find((option) => option.key === activeDrinkType)?.label;
+      if (drinkTypeLabel) {
+        labels.push(drinkTypeLabel);
+      }
+    }
+
+    if (activeDrinkType === 'cocktailAlcool' && activeAlcohol !== 'all') {
+      labels.push(alcoholLabels[activeAlcohol]);
+    }
+
+    if (activeMonin !== 'all') {
+      const moninLabel = moninOptions.find((option) => option.key === activeMonin)?.label;
+      if (moninLabel) {
+        labels.push(moninLabel);
+      }
+    }
+
+    return labels;
+  }, [activeDrinkType, activeAlcohol, activeMonin, alcoholLabels, drinkTypeOptions, moninOptions]);
+
   const handleResetFilters = () => {
     setActiveDrinkType('all');
     setActiveAlcohol('all');
@@ -224,20 +248,42 @@ export default function ExploreScreen() {
               </ThemedText>
             </Pressable>
             {filtersActive ? (
-              <Pressable onPress={handleResetFilters}>
-                <ThemedText type="link">{t('exploreReset')}</ThemedText>
+              <Pressable
+                style={[styles.resetButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]}
+                onPress={handleResetFilters}
+              >
+                <ThemedText style={[styles.resetButtonText, { color: colors.primary }]}>{t('exploreReset')}</ThemedText>
               </Pressable>
             ) : null}
           </View>
 
           {!filtersExpanded ? (
-            <ThemedText style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}>
-              {filtersActive ? t('exploreFiltersActiveHint') : t('exploreFiltersCollapsedHint')}
-            </ThemedText>
+            <View style={styles.filtersCollapsedSection}>
+              <ThemedText style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}> 
+                {filtersActive ? t('exploreFiltersActiveHint') : t('exploreFiltersCollapsedHint')}
+              </ThemedText>
+              {filtersActive ? (
+                <View style={styles.activeFiltersRow}>
+                  {activeFilterLabels.map((label) => (
+                    <View
+                      key={label}
+                      style={[styles.activeFilterChip, { borderColor: colors.primary, backgroundColor: colors.primary + '1E' }]}
+                    >
+                      <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>{label}</ThemedText>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </View>
           ) : null}
 
           {filtersExpanded ? (
-            <>
+            <View
+              style={[
+                styles.filterPanel,
+                { borderColor: colors.border, backgroundColor: colors.surfaceSoft },
+              ]}
+            >
               <View style={styles.filterGroup}>
                 <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreDrinkTypeLabel')}</ThemedText>
                 <View style={styles.filterChipsRow}>
@@ -323,7 +369,7 @@ export default function ExploreScreen() {
                   })}
                 </View>
               </View>
-            </>
+            </View>
           ) : null}
         </View>
       </View>
@@ -375,7 +421,8 @@ const styles = StyleSheet.create({
   },
   filtersSection: {
     marginTop: 14,
-    gap: 12,
+    gap: 10,
+    backgroundColor: 'transparent',
   },
   filtersHeaderRow: {
     flexDirection: 'row',
@@ -392,9 +439,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  resetButton: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  resetButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  filtersCollapsedSection: {
+    gap: 8,
+  },
   filtersCollapsedHint: {
     fontSize: 13,
     lineHeight: 18,
+  },
+  activeFiltersRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  activeFilterChip: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  activeFilterChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  filterPanel: {
+    gap: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 10,
   },
   filterGroup: {
     gap: 6,
@@ -406,16 +487,18 @@ const styles = StyleSheet.create({
   filterChipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 8,
   },
   filterChip: {
     borderRadius: 999,
     borderWidth: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
+    minHeight: 34,
   },
   filterChipText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
   },
   switcherButton: {
