@@ -261,7 +261,43 @@ export default function ExploreScreen() {
           <View style={styles.filtersHeaderRow}>
             <Pressable style={styles.filtersToggle} onPress={handleOpenFilters}>
               <ThemedText type="defaultSemiBold">{t('exploreFiltersTitle')}</ThemedText>
+              <ThemedText style={[styles.filtersToggleIcon, { color: colors.textMuted }]}>▾</ThemedText>
             </Pressable>
+
+            <View style={styles.filtersCollapsedSection}>
+              {filtersActive ? (
+                <View style={styles.activeFiltersRow}>
+                  {compactFilterChips.labels.map((label) => (
+                    <View
+                      key={label}
+                      style={[styles.activeFilterChip, { borderColor: colors.primary, backgroundColor: colors.primary + '1E' }]}
+                    >
+                      <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>{label}</ThemedText>
+                    </View>
+                  ))}
+                  {compactFilterChips.overflowCount > 0 ? (
+                    <View
+                      style={[
+                        styles.activeFilterChip,
+                        styles.activeFilterChipCompact,
+                        { borderColor: colors.primary, backgroundColor: colors.primary + '1E' },
+                      ]}
+                    >
+                      <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>+{compactFilterChips.overflowCount}</ThemedText>
+                    </View>
+                  ) : null}
+                </View>
+              ) : (
+                <ThemedText
+                  style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {t('exploreFiltersCollapsedHint')}
+                </ThemedText>
+              )}
+            </View>
+
             {filtersActive ? (
               <Pressable
                 style={[styles.resetButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]}
@@ -271,49 +307,7 @@ export default function ExploreScreen() {
               </Pressable>
             ) : null}
           </View>
-
-          <View style={styles.filtersCollapsedSection}>
-            <ThemedText
-              style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {filtersActive ? t('exploreFiltersActiveHint') : t('exploreFiltersCollapsedHint')}
-            </ThemedText>
-            {filtersActive ? (
-              <View style={styles.activeFiltersRow}>
-                {compactFilterChips.labels.map((label) => (
-                  <View
-                    key={label}
-                    style={[styles.activeFilterChip, { borderColor: colors.primary, backgroundColor: colors.primary + '1E' }]}
-                  >
-                    <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>{label}</ThemedText>
-                  </View>
-                ))}
-                {compactFilterChips.overflowCount > 0 ? (
-                  <View
-                    style={[
-                      styles.activeFilterChip,
-                      styles.activeFilterChipCompact,
-                      { borderColor: colors.primary, backgroundColor: colors.primary + '1E' },
-                    ]}
-                  >
-                    <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>+{compactFilterChips.overflowCount}</ThemedText>
-                  </View>
-                ) : null}
-              </View>
-            ) : null}
-          </View>
-
-          <Pressable
-            style={[styles.openFiltersButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]}
-            onPress={handleOpenFilters}
-          >
-            <ThemedText style={[styles.openFiltersButtonText, { color: colors.primary }]}>{t('exploreFiltersTitle')}</ThemedText>
-            <ThemedText style={[styles.openFiltersButtonIcon, { color: colors.primary }]}>⚙</ThemedText>
-          </Pressable>
         </View>
-
         <Modal
           animationType="slide"
           transparent
