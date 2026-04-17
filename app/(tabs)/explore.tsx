@@ -1,4 +1,4 @@
-import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
@@ -194,6 +194,21 @@ export default function ExploreScreen() {
     setActiveMonin('all');
   };
 
+  const handleDrinkTypeSelect = (drinkType: DrinkTypeFilter) => {
+    setActiveDrinkType(drinkType);
+    setFiltersExpanded(false);
+  };
+
+  const handleAlcoholSelect = (alcohol: RecipeAlcoholCategory | 'all') => {
+    setActiveAlcohol(alcohol);
+    setFiltersExpanded(false);
+  };
+
+  const handleMoninSelect = (monin: MoninFilter) => {
+    setActiveMonin(monin);
+    setFiltersExpanded(false);
+  };
+
   const showMachineSwitcher = machinePreferenceMode === 'both';
 
   return (
@@ -286,7 +301,11 @@ export default function ExploreScreen() {
             >
               <View style={styles.filterGroup}>
                 <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreDrinkTypeLabel')}</ThemedText>
-                <View style={styles.filterChipsRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterChipsRow}
+                >
                   {drinkTypeOptions.map((option) => {
                     const selected = activeDrinkType === option.key;
                     return (
@@ -297,7 +316,7 @@ export default function ExploreScreen() {
                           { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                           selected && { backgroundColor: colors.primary, borderColor: colors.primary },
                         ]}
-                        onPress={() => setActiveDrinkType(option.key)}
+                        onPress={() => handleDrinkTypeSelect(option.key)}
                       >
                         <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                           {option.label}
@@ -305,20 +324,24 @@ export default function ExploreScreen() {
                       </Pressable>
                     );
                   })}
-                </View>
+                </ScrollView>
               </View>
 
               {activeDrinkType === 'cocktailAlcool' ? (
                 <View style={styles.filterGroup}>
                   <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreAlcoholLabel')}</ThemedText>
-                  <View style={styles.filterChipsRow}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.filterChipsRow}
+                  >
                     <Pressable
                       style={[
                         styles.filterChip,
                         { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                         activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
-                      ]}
-                      onPress={() => setActiveAlcohol('all')}
+                          ]}
+                      onPress={() => handleAlcoholSelect('all')}
                     >
                       <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}> 
                         {t('exploreAll')}
@@ -334,7 +357,7 @@ export default function ExploreScreen() {
                             { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                             selected && { backgroundColor: colors.primary, borderColor: colors.primary },
                           ]}
-                          onPress={() => setActiveAlcohol(alcohol)}
+                          onPress={() => handleAlcoholSelect(alcohol)}
                         >
                           <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                             {alcoholLabels[alcohol]}
@@ -342,24 +365,28 @@ export default function ExploreScreen() {
                         </Pressable>
                       );
                     })}
-                  </View>
+                  </ScrollView>
                 </View>
               ) : null}
 
               <View style={styles.filterGroup}>
                 <ThemedText style={[styles.filterLabel, { color: colors.textMuted }]}>{t('exploreMoninLabel')}</ThemedText>
-                <View style={styles.filterChipsRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterChipsRow}
+                >
                   {moninOptions.map((option) => {
                     const selected = activeMonin === option.key;
                     return (
                       <Pressable
                         key={option.key}
                         style={[
-                          styles.filterChip,
+                        styles.filterChip,
                           { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                           selected && { backgroundColor: colors.primary, borderColor: colors.primary },
                         ]}
-                        onPress={() => setActiveMonin(option.key)}
+                        onPress={() => handleMoninSelect(option.key)}
                       >
                         <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                           {option.label}
@@ -367,7 +394,7 @@ export default function ExploreScreen() {
                       </Pressable>
                     );
                   })}
-                </View>
+                </ScrollView>
               </View>
             </View>
           ) : null}
@@ -400,7 +427,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 12,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     shadowOffset: { width: 0, height: 2 },
@@ -413,15 +440,15 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   machineSwitcher: {
     flexDirection: 'row',
     gap: 8,
   },
   filtersSection: {
-    marginTop: 14,
-    gap: 10,
+    marginTop: 10,
+    gap: 8,
     backgroundColor: 'transparent',
   },
   filtersHeaderRow: {
@@ -472,10 +499,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   filterPanel: {
-    gap: 14,
+    gap: 8,
     borderRadius: 14,
     borderWidth: 1,
-    padding: 10,
+    padding: 8,
   },
   filterGroup: {
     gap: 6,
@@ -486,19 +513,19 @@ const styles = StyleSheet.create({
   },
   filterChipsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
+    paddingRight: 12,
   },
   filterChip: {
     borderRadius: 999,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    minHeight: 34,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    minHeight: 30,
   },
   filterChipText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
   switcherButton: {
