@@ -6,11 +6,20 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.mora9s.perfectgranita"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "87ab4503-48cd-4be5-8cac-f06c556166ea"
+      }
+    },
+    "owner": "stefultra"
   }
 }
