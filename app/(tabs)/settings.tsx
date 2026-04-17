@@ -2,14 +2,17 @@ import { useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useMachine } from '@/app/machine/machine-context';
 import { useLanguage, type AppLanguage } from '@/app/language/language-context';
 import { useTheme, type ThemePreference } from '@/app/theme/theme-context';
+import type { MachinePreferenceMode } from '@/app/types/machine';
 
 const DONATION_URL = 'https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_HOSTED_BUTTON_ID';
 
 export default function SettingsScreen() {
   const { colors, themePreference, setThemePreference, resolvedTheme } = useTheme();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
+  const { machinePreferenceMode, setMachinePreferenceMode } = useMachine();
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
 
   const selectedLanguageLabel = useMemo(() => {
@@ -38,6 +41,12 @@ export default function SettingsScreen() {
     { value: 'light', label: t('themeLight') },
     { value: 'dark', label: t('themeDark') },
     { value: 'system', label: t('themeSystem') },
+  ];
+
+  const machineModeOptions: Array<{ value: MachinePreferenceMode; label: string }> = [
+    { value: 'both', label: t('machineModeBoth') },
+    { value: 'slushi', label: t('machineModeSlushiOnly') },
+    { value: 'slushi-max', label: t('machineModeMaxOnly') },
   ];
 
   return (
@@ -128,6 +137,42 @@ export default function SettingsScreen() {
 
         <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
           {t('currentLanguageLabel')}: {selectedLanguageLabel}
+        </ThemedText>
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+        <ThemedText type="defaultSemiBold">{t('machineSettingsTitle')}</ThemedText>
+        <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
+          {t('machineModeLabel')}
+        </ThemedText>
+        <View style={[styles.segmentedControl, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}> 
+          {machineModeOptions.map((option) => {
+            const selected = machinePreferenceMode === option.value;
+
+            return (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.segmentButton,
+                  selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
+                onPress={() => setMachinePreferenceMode(option.value)}
+              >
+                <ThemedText
+                  style={[
+                    styles.segmentText,
+                    { color: selected ? colors.primaryText : colors.textMuted },
+                  ]}
+                >
+                  {option.label}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <ThemedText style={[styles.helper, { color: colors.textMuted }]}> 
+          {t('machineModeHelper')}
         </ThemedText>
       </View>
 

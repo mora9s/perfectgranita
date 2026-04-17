@@ -99,7 +99,7 @@ function getDrinkType(recipe: Recipe): DrinkTypeFilter {
 
 export default function ExploreScreen() {
   const { recipes } = useRecipes();
-  const { selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
+  const { machinePreferenceMode, selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
   const [activeDrinkType, setActiveDrinkType] = useState<DrinkTypeFilter>('all');
@@ -170,6 +170,8 @@ export default function ExploreScreen() {
     setActiveMonin('all');
   };
 
+  const showMachineSwitcher = machinePreferenceMode === 'both';
+
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }] }>
@@ -180,36 +182,38 @@ export default function ExploreScreen() {
           {t('exploreSubtitle')} {selectedMachine.name}
         </ThemedText>
 
-        <View style={styles.machineSwitcher}>
-          {MACHINE_OPTIONS.map((machine) => {
-            const isSelected = machine.id === selectedMachineId;
+        {showMachineSwitcher ? (
+          <View style={styles.machineSwitcher}>
+            {MACHINE_OPTIONS.map((machine) => {
+              const isSelected = machine.id === selectedMachineId;
 
-            return (
-              <Pressable
-                key={machine.id}
-                style={[
-                  styles.switcherButton,
-                  {
-                    backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
-                    borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
-                  },
-                  isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
-                ]}
-                onPress={() => setSelectedMachineId(machine.id)}
-              >
-                <ThemedText
+              return (
+                <Pressable
+                  key={machine.id}
                   style={[
-                    styles.switcherText,
-                    { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
-                    isSelected && { color: colors.primaryText },
+                    styles.switcherButton,
+                    {
+                      backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                      borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
+                    },
+                    isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
                   ]}
+                  onPress={() => setSelectedMachineId(machine.id)}
                 >
-                  {machine.shortName}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
-        </View>
+                  <ThemedText
+                    style={[
+                      styles.switcherText,
+                      { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
+                      isSelected && { color: colors.primaryText },
+                    ]}
+                  >
+                    {machine.shortName}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
 
         <View style={styles.filtersSection}>
           <View style={styles.filtersHeaderRow}>

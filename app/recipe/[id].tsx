@@ -17,6 +17,7 @@ interface RecipeDetailProps {
   machineId: MachineId;
   selectedMachineName: string;
   selectedMachineCapacityLiters: number;
+  showMachineSwitcher: boolean;
   onMachineSelect: (machineId: MachineId) => void;
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
@@ -28,6 +29,7 @@ function RecipeDetail({
   machineId,
   selectedMachineName,
   selectedMachineCapacityLiters,
+  showMachineSwitcher,
   onMachineSelect,
   colors,
   resolvedTheme,
@@ -95,36 +97,38 @@ function RecipeDetail({
           {!recipe.media?.image ? <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText> : null}
         </View>
 
-        <View style={styles.machineSwitcher}>
-          {MACHINE_OPTIONS.map((machine) => {
-            const isSelected = machine.id === machineId;
+        {showMachineSwitcher ? (
+          <View style={styles.machineSwitcher}>
+            {MACHINE_OPTIONS.map((machine) => {
+              const isSelected = machine.id === machineId;
 
-            return (
-              <Pressable
-                key={machine.id}
-                style={[
-                  styles.switcherButton,
-                  {
-                    backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
-                    borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
-                  },
-                  isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
-                ]}
-                onPress={() => onMachineSelect(machine.id)}
-              >
-                <ThemedText
+              return (
+                <Pressable
+                  key={machine.id}
                   style={[
-                    styles.switcherText,
-                    { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
-                    isSelected && { color: colors.primaryText },
+                    styles.switcherButton,
+                    {
+                      backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                      borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
+                    },
+                    isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
                   ]}
+                  onPress={() => onMachineSelect(machine.id)}
                 >
-                  {machine.shortName}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
-        </View>
+                  <ThemedText
+                    style={[
+                      styles.switcherText,
+                      { color: resolvedTheme === 'dark' ? '#D8CCFF' : '#6D28D9' },
+                      isSelected && { color: colors.primaryText },
+                    ]}
+                  >
+                    {machine.shortName}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
 
         {recipe.media?.image ? (
           <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
@@ -280,7 +284,7 @@ function RecipeDetail({
 
 export default function RecipeScreen() {
   const { recipes } = useRecipes();
-  const { selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
+  const { machinePreferenceMode, selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -331,6 +335,7 @@ export default function RecipeScreen() {
         machineId={selectedMachineId}
         selectedMachineName={selectedMachine.name}
         selectedMachineCapacityLiters={selectedMachine.capacityLiters}
+        showMachineSwitcher={machinePreferenceMode === 'both'}
         onMachineSelect={setSelectedMachineId}
         colors={colors}
         resolvedTheme={resolvedTheme}

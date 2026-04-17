@@ -1,25 +1,59 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_MACHINE_ID, MACHINES } from '@/app/machine/config';
-import type { Machine, MachineId } from '@/app/types/machine';
+import type { Machine, MachineId, MachinePreferenceMode } from '@/app/types/machine';
 
 interface MachineContextValue {
   selectedMachineId: MachineId;
   selectedMachine: Machine;
+  machinePreferenceMode: MachinePreferenceMode;
+  availableMachines: Machine[];
+  isMachineAllowed: (machineId: MachineId) => boolean;
   setSelectedMachineId: (machineId: MachineId) => void;
+  setMachinePreferenceMode: (mode: MachinePreferenceMode) => void;
 }
 
 const MachineContext = createContext<MachineContextValue | undefined>(undefined);
 
+function getAllowedMachineIds(mode: MachinePreferenceMode): MachineId[] {
+  if (mode === 'both') {
+    return ['slushi', 'slushi-max'];
+  }
+
+  return [mode];
+}
+
 export function MachineProvider({ children }: PropsWithChildren) {
   const [selectedMachineId, setSelectedMachineId] = useState<MachineId>(DEFAULT_MACHINE_ID);
+  const [machinePreferenceMode, setMachinePreferenceMode] = useState<MachinePreferenceMode>('both');
+
+  const allowedMachineIds = useMemo(
+    () => getAllowedMachineIds(machinePreferenceMode),
+    [machinePreferenceMode]
+  );
+
+  useEffect(() => {
+    if (!allowedMachineIds.includes(selectedMachineId)) {
+      setSelectedMachineId(allowedMachineIds[0]);
+    }
+  }, [allowedMachineIds, selectedMachineId]);
+
+  const setSelectedMachineIdForMode = (machineId: MachineId) => {
+    if (allowedMachineIds.includes(machineId)) {
+      setSelectedMachineId(machineId);
+    }
+  };
 
   const value = useMemo(
     () => ({
       selectedMachineId,
       selectedMachine: MACHINES[selectedMachineId],
-      setSelectedMachineId,
+      machinePreferenceMode,
+      availableMachines: allowedMachineIds.map((machineId) => MACHINES[machineId]),
+      isMachineAllowed: (machineId: MachineId) => allowedMachineIds.includes(machineId),
+      setSelectedMachineId: setSelectedMachineIdForMode,
+      setMachinePreferenceMode,
     }),
-    [selectedMachineId]
+    [selectedMachineId, machinePreferenceMode, allowedMachineIds]
   );
 
   return <MachineContext.Provider value={value}>{children}</MachineContext.Provider>;

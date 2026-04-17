@@ -20,7 +20,7 @@ function MachineIllustration({ machineId }: { machineId: MachineId }) {
 }
 
 export default function IndexScreen() {
-  const { selectedMachineId, setSelectedMachineId } = useMachine();
+  const { selectedMachineId, setSelectedMachineId, isMachineAllowed } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t } = useLanguage();
 
@@ -45,6 +45,7 @@ export default function IndexScreen() {
         <View style={styles.content}>
           {MACHINE_OPTIONS.map((machine) => {
             const isSelected = machine.id === selectedMachineId;
+            const isAllowed = isMachineAllowed(machine.id);
 
             return (
               <Pressable
@@ -57,8 +58,14 @@ export default function IndexScreen() {
                     shadowColor: colors.primary,
                     shadowOpacity: 0.25,
                   },
+                  !isAllowed && { opacity: 0.45 },
                 ]}
-                onPress={() => handleMachineSelect(machine.id)}
+                disabled={!isAllowed}
+                onPress={() => {
+                  if (isAllowed) {
+                    handleMachineSelect(machine.id);
+                  }
+                }}
               >
                 <View style={styles.cardTopRow}>
                   <ThemedText type="subtitle" style={styles.machineName}>
