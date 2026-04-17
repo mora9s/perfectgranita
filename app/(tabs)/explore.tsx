@@ -188,6 +188,16 @@ export default function ExploreScreen() {
     return labels;
   }, [activeDrinkType, activeAlcohol, activeMonin, alcoholLabels, drinkTypeOptions, moninOptions]);
 
+  const compactFilterChips = useMemo(() => {
+    const maxShownChips = 2;
+    const overflowCount = Math.max(0, activeFilterLabels.length - maxShownChips);
+
+    return {
+      labels: activeFilterLabels.slice(0, maxShownChips),
+      overflowCount,
+    };
+  }, [activeFilterLabels]);
+
   const handleResetFilters = () => {
     setActiveDrinkType('all');
     setActiveAlcohol('all');
@@ -263,12 +273,16 @@ export default function ExploreScreen() {
           </View>
 
           <View style={styles.filtersCollapsedSection}>
-            <ThemedText style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}> 
+            <ThemedText
+              style={[styles.filtersCollapsedHint, { color: colors.textMuted }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {filtersActive ? t('exploreFiltersActiveHint') : t('exploreFiltersCollapsedHint')}
             </ThemedText>
             {filtersActive ? (
               <View style={styles.activeFiltersRow}>
-                {activeFilterLabels.map((label) => (
+                {compactFilterChips.labels.map((label) => (
                   <View
                     key={label}
                     style={[styles.activeFilterChip, { borderColor: colors.primary, backgroundColor: colors.primary + '1E' }]}
@@ -276,6 +290,17 @@ export default function ExploreScreen() {
                     <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>{label}</ThemedText>
                   </View>
                 ))}
+                {compactFilterChips.overflowCount > 0 ? (
+                  <View
+                    style={[
+                      styles.activeFilterChip,
+                      styles.activeFilterChipCompact,
+                      { borderColor: colors.primary, backgroundColor: colors.primary + '1E' },
+                    ]}
+                  >
+                    <ThemedText style={[styles.activeFilterChipText, { color: colors.primary }]}>+{compactFilterChips.overflowCount}</ThemedText>
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </View>
@@ -580,26 +605,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   filtersCollapsedSection: {
-    gap: 8,
+    gap: 6,
   },
   filtersCollapsedHint: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
   },
   activeFiltersRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    alignItems: 'center',
+    gap: 6,
   },
   activeFilterChip: {
     borderWidth: 1,
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minHeight: 24,
+    justifyContent: 'center',
+  },
+  activeFilterChipCompact: {
+    paddingHorizontal: 6,
   },
   activeFilterChipText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '600',
+    lineHeight: 14,
   },
   filterPanel: {
     gap: 8,
