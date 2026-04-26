@@ -1,66 +1,62 @@
-# PerfectGranita 🍧
+# Slushi Party
 
-> Un générateur de recettes de granita sicilien en ligne de commande
+Slushi Party is an Expo + React Native mobile app for preparing frozen drink recipes with Ninja Slushi machines.
 
-## Qu'est-ce que le Granita ?
+## What The App Does
 
-Le **granita** est un dessert glacé originaire de Sicile, en Italie. Plus léger que la glace et plus cristallin que le sorbet, il est préparé à partir d'eau, de sucre et d'ingrédients aromatiques (fruits, café, amandes, etc.). Sa texture unique, à la fois granuleuse et fondante, en fait le dessert rafraîchissant par excellence.
+- Lets you choose your machine: `Ninja Slushi` or `Ninja Slushi Max`.
+- Scales recipe quantities to the selected machine capacity.
+- Provides recipe browsing with filters for:
+  - drink type (alcoholic cocktail, non-alcoholic cocktail, other)
+  - alcohol category
+  - Monin / non-Monin recipes
+- Includes localized recipe content (French/English) and per-recipe detail screens.
+- Supports custom recipe creation from the app (`My Recipes` tab).
+- Includes in-app settings for theme and language preferences.
 
-## PerfectGranita
+## Tech Stack
 
-**PerfectGranita** est un outil en ligne de commande qui génère des recettes de granita parfaitement équilibrées. Que vous soyez débutant ou expert, il vous guide pour créer des granitas authentiques avec les bonnes proportions et techniques.
+- Expo SDK 55
+- React Native 0.83
+- Expo Router
+- TypeScript
 
-## Installation
-
-### Via npm
-
-```bash
-npm install -g perfectgranita
-```
-
-### Via yarn
-
-```bash
-yarn global add perfectgranita
-```
-
-### Depuis les sources
+## Install
 
 ```bash
-git clone https://github.com/mora9s/perfectgranita.git
-cd perfectgranita
 npm install
-npm link
 ```
 
-## Utilisation
-
-### Lister les saveurs disponibles
+## Run In Development
 
 ```bash
-perfectgranita list
+npm run start
 ```
 
-### Obtenir une recette
+Then launch a target from the Expo UI, or use:
 
 ```bash
-perfectgranita recipe lemon
-perfectgranita recipe coffee
-perfectgranita recipe strawberry
+npm run android
+npm run ios
+npm run web
 ```
 
-## Saveurs disponibles
+## Type Check
 
-- 🍋 **Citron** (lemon) - Le classique sicilien
-- ☕ **Café** (coffee) - Avec ou sans crème
-- 🍓 **Fraise** (strawberry) - Fruité et rafraîchissant
-- 🌿 **Menthe** (mint) - Intense et frais
-- 🥜 **Amande** (almond) - Doux et parfumé
+```bash
+npx tsc --noEmit
+```
 
-## Licence
+## Legacy CLI (Short Note)
+
+This repository still contains the historical Node.js CLI entrypoint at `src/index.js`.
+
+```bash
+npm run cli
+```
+
+The mobile app is now the primary product surface.
+
+## License
 
 MIT
-
----
-
-*"Un granita parfait, c'est de la Sicile dans votre verre."* 🍋❄️

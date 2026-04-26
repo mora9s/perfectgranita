@@ -1,7 +1,7 @@
 {
   "name": "perfect-granita",
   "version": "1.0.0",
-  "description": "Application mobile PerfectGranita avec CLI historique séparé",
+  "description": "Slushi Party mobile app for Ninja Slushi and Ninja Slushi Max recipes, with legacy CLI support",
   "main": "expo-router/entry",
   "bin": {
     "perfectgranita": "./src/index.js"
