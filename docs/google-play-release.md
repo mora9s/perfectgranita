@@ -78,21 +78,24 @@ Create or complete the app in Google Play Console:
 
 Prepared in repo:
 
-- App icon source: `assets/store/icon.png`
-- Android adaptive icon foreground: `assets/store/adaptive-icon-foreground.png`
-- Splash image: `assets/store/splash.png`
-- Feature graphic draft: `assets/store/feature-graphic.png`
-- FR/EN listing copy: `docs/store-listing.md`
-- Privacy policy draft: `docs/privacy-policy.md`
+- Expo/app icon source: `assets/store/icon.png` — `1024 × 1024`.
+- Google Play high-res icon: `assets/store/play-icon-512.png` — `512 × 512`.
+- Android adaptive icon foreground: `assets/store/adaptive-icon-foreground.png` — `1024 × 1024`, transparent foreground.
+- Splash image: `assets/store/splash.png` — `1242 × 2436`.
+- Google Play feature graphic: `assets/store/feature-graphic.png` — `1024 × 500`.
+- Google Play phone screenshots, generated drafts:
+  1. `assets/store/screenshots/phone-01-home.png` — `1080 × 1920`.
+  2. `assets/store/screenshots/phone-02-explore.png` — `1080 × 1920`.
+  3. `assets/store/screenshots/phone-03-my-recipes.png` — `1080 × 1920`.
+  4. `assets/store/screenshots/phone-04-settings.png` — `1080 × 1920`.
+- Asset generation script: `scripts/generate-store-assets.py`.
+- FR/EN listing copy: `docs/store-listing.md`.
+- Privacy policy draft: `docs/privacy-policy.md`.
 
-Still needed from real device/emulator:
+Notes:
 
-- At least 2 phone screenshots, preferably 4–8.
-- Recommended screenshots:
-  1. Home / machine selection.
-  2. Recipes adapted to Ninja Slushi Max.
-  3. Recipe detail with ingredients/steps.
-  4. My Recipes / custom recipe persistence.
+- The generated screenshots are Play Console-ready draft marketing screenshots. If Google rejects synthetic screenshots, replace them with real device captures from the same flows.
+- Re-run `python3 scripts/generate-store-assets.py` after changing visual branding.
 
 ## Data safety draft answers
 
