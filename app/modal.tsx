@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import { withHaptics } from '@/app/utils/press-feedback';
 import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
@@ -44,7 +45,14 @@ export default function ModalScreen() {
         <ThemedText type="title" style={[styles.title, { color: colors.primary }]}> 
           {t('modalTitle')}
         </ThemedText>
-        <Pressable onPress={() => router.back()} style={[styles.closeButton, { backgroundColor: colors.background }]}>
+        <Pressable
+          onPress={withHaptics(() => router.back())}
+          style={({ pressed }) => [
+            styles.closeButton,
+            { backgroundColor: colors.background },
+            pressed && [styles.closeButtonPressed, { backgroundColor: resolvedTheme === 'dark' ? '#2A3F59' : '#E9DDFF' }],
+          ]}
+        >
           <ThemedText style={[styles.closeButtonText, { color: colors.textMuted }]}>✕</ThemedText>
         </Pressable>
       </View>
@@ -75,12 +83,17 @@ export default function ModalScreen() {
         </View>
 
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.createButton,
             { backgroundColor: colors.primary },
             !name.trim() && { backgroundColor: resolvedTheme === 'dark' ? '#4A3E66' : '#C4B5FD' },
+            !name.trim() && { opacity: 0.72 },
+            pressed && name.trim() && [
+              styles.createButtonPressed,
+              { backgroundColor: resolvedTheme === 'dark' ? '#2A3F59' : '#E9DDFF' },
+            ],
           ]}
-          onPress={handleCreate}
+          onPress={withHaptics(handleCreate)}
           disabled={!name.trim()}
         >
           <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}>
@@ -146,6 +159,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 20,
+  },
+  createButtonPressed: {
+    transform: [{ scale: 0.92 }, { translateY: 1 }],
+    opacity: 0.84,
+    shadowOpacity: 0.22,
+    borderWidth: 1.2,
+  },
+  closeButtonPressed: {
+    transform: [{ scale: 0.9 }, { translateY: 1 }],
+    opacity: 0.84,
+    borderWidth: 1.2,
+    shadowOpacity: 0.2,
   },
   createButtonText: {
     fontSize: 16,

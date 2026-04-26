@@ -9,6 +9,7 @@ import { useMachine } from '@/app/machine/machine-context';
 import { getLocalizedRecipeDrinkVisual, getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
 import { scaleRecipeProportions } from '@/app/machine/scale';
+import { withHaptics } from '@/app/utils/press-feedback';
 import type { Recipe, RecipeIngredient } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
 
@@ -105,15 +106,17 @@ function RecipeDetail({
               return (
                 <Pressable
                   key={machine.id}
-                  style={[
+                  android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(216,204,255,0.24)' : 'rgba(109,40,217,0.18)' }}
+                  style={({ pressed }) => [
                     styles.switcherButton,
                     {
                       backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
                       borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
                     },
                     isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    pressed && styles.compactPressablePressed,
                   ]}
-                  onPress={() => onMachineSelect(machine.id)}
+                  onPress={withHaptics(() => onMachineSelect(machine.id))}
                 >
                   <ThemedText
                     style={[
@@ -313,7 +316,7 @@ export default function RecipeScreen() {
           <ThemedText style={[styles.errorDescription, { color: colors.textMuted }]}>
             {t('recipeMissingDescription')}
           </ThemedText>
-          <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.primary }]}>
+          <Pressable onPress={withHaptics(() => router.back())} style={[styles.backButton, { backgroundColor: colors.primary }]}>
             <ThemedText style={[styles.backButtonText, { color: colors.primaryText }]}>{t('recipeBackButton')}</ThemedText>
           </Pressable>
         </View>
@@ -331,7 +334,7 @@ export default function RecipeScreen() {
       />
       <View style={styles.backHeader}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={withHaptics(() => router.back())}
           style={[
             styles.backButtonTop,
             {
@@ -534,7 +537,11 @@ const styles = StyleSheet.create({
   },
   switcherText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  compactPressablePressed: {
+    transform: [{ scale: 0.94 }, { translateY: 1 }],
+    opacity: 0.84,
   },
   machineBlock: {
     borderRadius: 12,

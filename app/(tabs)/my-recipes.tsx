@@ -1,4 +1,5 @@
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { withHaptics } from '@/app/utils/press-feedback';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -24,8 +25,14 @@ function RecipeCard({
 
   return (
     <Pressable
-      style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
-      onPress={() => router.push(`/recipe/${recipe.id}`)}
+      android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(216,204,255,0.28)' : 'rgba(109,40,217,0.22)' }}
+      unstable_pressDelay={80}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: colors.surface, shadowColor: colors.shadow },
+        pressed && [styles.cardPressed, { backgroundColor: resolvedTheme === 'dark' ? '#2A3F59' : '#E9DDFF' }],
+      ]}
+      onPress={withHaptics(() => router.push(`/recipe/${recipe.id}`))}
     >
       <View style={styles.cardContent}>
         <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
@@ -90,8 +97,13 @@ export default function MyRecipesScreen() {
       )}
 
       <Pressable
-        style={[styles.createButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
-        onPress={() => router.push('/modal')}
+        android_ripple={{ color: 'rgba(255,255,255,0.30)' }}
+        style={({ pressed }) => [
+          styles.createButton,
+          { backgroundColor: colors.primary, shadowColor: colors.primary },
+          pressed && styles.createButtonPressed,
+        ]}
+        onPress={withHaptics(() => router.push('/modal'))}
       >
         <ThemedText style={[styles.createButtonText, { color: colors.primaryText }]}> 
           {t('myRecipesCreateButton')}
@@ -133,6 +145,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  cardPressed: {
+    transform: [{ scale: 0.92 }],
+    opacity: 0.84,
+    borderWidth: 1.2,
+    shadowOpacity: 0.2,
   },
   cardContent: {
     padding: 20,
@@ -188,6 +206,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+  },
+  createButtonPressed: {
+    transform: [{ scale: 0.92 }, { translateY: 1 }],
+    opacity: 0.86,
   },
   createButtonText: {
     fontSize: 16,

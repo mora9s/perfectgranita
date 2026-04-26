@@ -1,6 +1,7 @@
 import { FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
+import { getMarkedPressStyle, withHaptics } from '@/app/utils/press-feedback';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
@@ -34,10 +35,20 @@ function RecipeCard({ recipe, machineId, language, colors, resolvedTheme }: Reci
   const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
 
   return (
-    <Pressable
-      style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
-      onPress={() => router.push(`/recipe/${recipe.id}`)}
-    >
+      <Pressable
+        android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(216,204,255,0.28)' : 'rgba(109,40,217,0.22)' }}
+        unstable_pressDelay={80}
+        style={({ pressed }) => [
+          styles.card,
+          { backgroundColor: colors.surface, shadowColor: colors.shadow },
+          pressed && [
+            styles.cardPressed,
+            getMarkedPressStyle(true, { scale: 0.9, opacity: 0.84 }),
+            { backgroundColor: resolvedTheme === 'dark' ? '#2A3F59' : '#E9DDFF' },
+          ],
+        ]}
+        onPress={withHaptics(() => router.push(`/recipe/${recipe.id}`))}
+      >
       <View style={styles.cardContent}>
         <View style={styles.cardLayout}>
           <View
@@ -232,15 +243,17 @@ export default function ExploreScreen() {
               return (
                 <Pressable
                   key={machine.id}
-                  style={[
+                  android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(216,204,255,0.30)' : 'rgba(109,40,217,0.22)' }}
+                  style={({ pressed }) => [
                     styles.switcherButton,
                     {
                       backgroundColor: resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
                       borderColor: resolvedTheme === 'dark' ? '#4A3E66' : '#DDD6FE',
                     },
                     isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.92, opacity: 0.84 })],
                   ]}
-                  onPress={() => setSelectedMachineId(machine.id)}
+                  onPress={withHaptics(() => setSelectedMachineId(machine.id))}
                 >
                   <ThemedText
                     style={[
@@ -259,7 +272,14 @@ export default function ExploreScreen() {
 
         <View style={styles.filtersSection}>
           <View style={styles.filtersHeaderRow}>
-            <Pressable style={styles.filtersToggle} onPress={handleOpenFilters}>
+            <Pressable
+              android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.14)' }}
+              style={({ pressed }) => [
+                styles.filtersToggle,
+                pressed && [styles.inlinePressablePressed, getMarkedPressStyle(true, { scale: 0.95, opacity: 0.88 })],
+              ]}
+              onPress={withHaptics(handleOpenFilters)}
+            >
               <ThemedText type="defaultSemiBold">{t('exploreFiltersTitle')}</ThemedText>
               <ThemedText style={[styles.filtersToggleIcon, { color: colors.textMuted }]}>▾</ThemedText>
             </Pressable>
@@ -300,8 +320,13 @@ export default function ExploreScreen() {
 
             {filtersActive ? (
               <Pressable
-                style={[styles.resetButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]}
-                onPress={handleResetFilters}
+                android_ripple={{ color: colors.primary + '3A' }}
+                style={({ pressed }) => [
+                  styles.resetButton,
+                  { borderColor: colors.primary, backgroundColor: colors.primary + '12' },
+                  pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.92, opacity: 0.84 })],
+                ]}
+                onPress={withHaptics(handleResetFilters)}
               >
                 <ThemedText style={[styles.resetButtonText, { color: colors.primary }]}>{t('exploreReset')}</ThemedText>
               </Pressable>
@@ -315,7 +340,10 @@ export default function ExploreScreen() {
           onRequestClose={handleCloseFilters}
         >
           <View style={styles.filterModalBackdrop}>
-            <Pressable style={[styles.filterModalBackdropPress, { backgroundColor: '#00000044' }]} onPress={handleCloseFilters} />
+            <Pressable
+              style={[styles.filterModalBackdropPress, { backgroundColor: '#00000044' }]}
+              onPress={withHaptics(handleCloseFilters)}
+            />
             <View
               style={[
                 styles.filterModal,
@@ -329,7 +357,13 @@ export default function ExploreScreen() {
                 <View style={[styles.filterModalHandle, { backgroundColor: colors.textMuted + '40' }]} />
                 <View style={styles.filterModalHeaderRow}>
                   <ThemedText type="defaultSemiBold">{t('exploreFiltersTitle')}</ThemedText>
-                  <Pressable onPress={handleCloseFilters}>
+                  <Pressable
+                    android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.14)' }}
+                    style={({ pressed }) => [
+                      pressed && [styles.inlinePressablePressed, getMarkedPressStyle(true, { scale: 0.95, opacity: 0.88 })],
+                    ]}
+                    onPress={withHaptics(handleCloseFilters)}
+                  >
                     <ThemedText style={[styles.filterModalClose, { color: colors.textMuted }]}>✕</ThemedText>
                   </Pressable>
                 </View>
@@ -353,12 +387,14 @@ export default function ExploreScreen() {
                         return (
                           <Pressable
                             key={option.key}
-                            style={[
+                            android_ripple={{ color: selected ? 'rgba(255,255,255,0.24)' : colors.primary + '32' }}
+                            style={({ pressed }) => [
                               styles.filterChip,
                               { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                               selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                              pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.9, opacity: 0.84 })],
                             ]}
-                            onPress={() => setActiveDrinkType(option.key)}
+                            onPress={withHaptics(() => setActiveDrinkType(option.key))}
                           >
                             <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                               {option.label}
@@ -378,12 +414,14 @@ export default function ExploreScreen() {
                         contentContainerStyle={styles.filterChipsRow}
                       >
                         <Pressable
-                          style={[
+                          android_ripple={{ color: activeAlcohol === 'all' ? 'rgba(255,255,255,0.24)' : colors.primary + '32' }}
+                          style={({ pressed }) => [
                             styles.filterChip,
                             { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                             activeAlcohol === 'all' && { backgroundColor: colors.primary, borderColor: colors.primary },
+                            pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.9, opacity: 0.84 })],
                           ]}
-                          onPress={() => setActiveAlcohol('all')}
+                          onPress={withHaptics(() => setActiveAlcohol('all'))}
                         >
                           <ThemedText style={[styles.filterChipText, { color: activeAlcohol === 'all' ? colors.primaryText : colors.textMuted }]}> 
                             {t('exploreAll')}
@@ -394,12 +432,14 @@ export default function ExploreScreen() {
                           return (
                             <Pressable
                               key={alcohol}
-                              style={[
+                              android_ripple={{ color: selected ? 'rgba(255,255,255,0.24)' : colors.primary + '32' }}
+                              style={({ pressed }) => [
                                 styles.filterChip,
                                 { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
                                 selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                                pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.9, opacity: 0.84 })],
                               ]}
-                              onPress={() => setActiveAlcohol(alcohol)}
+                              onPress={withHaptics(() => setActiveAlcohol(alcohol))}
                             >
                               <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                                 {alcoholLabels[alcohol]}
@@ -423,13 +463,15 @@ export default function ExploreScreen() {
                         return (
                           <Pressable
                             key={option.key}
-                            style={[
-                              styles.filterChip,
-                              { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                              selected && { backgroundColor: colors.primary, borderColor: colors.primary },
-                            ]}
-                            onPress={() => setActiveMonin(option.key)}
-                          >
+                            android_ripple={{ color: selected ? 'rgba(255,255,255,0.24)' : colors.primary + '32' }}
+                          style={({ pressed }) => [
+                            styles.filterChip,
+                            { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
+                            selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+                            pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.9, opacity: 0.84 })],
+                          ]}
+                          onPress={withHaptics(() => setActiveMonin(option.key))}
+                        >
                             <ThemedText style={[styles.filterChipText, { color: selected ? colors.primaryText : colors.textMuted }]}> 
                               {option.label}
                             </ThemedText>
@@ -441,7 +483,15 @@ export default function ExploreScreen() {
                 </View>
               </ScrollView>
 
-              <Pressable style={[styles.filterModalApply, { backgroundColor: colors.primary }]} onPress={handleCloseFilters}>
+              <Pressable
+                android_ripple={{ color: 'rgba(255,255,255,0.30)' }}
+                style={({ pressed }) => [
+                  styles.filterModalApply,
+                  { backgroundColor: colors.primary },
+                  pressed && [styles.compactPressablePressed, getMarkedPressStyle(true, { scale: 0.92, opacity: 0.84 })],
+                ]}
+                onPress={withHaptics(handleCloseFilters)}
+              >
                 <ThemedText style={[styles.filterModalApplyText, { color: colors.primaryText }]}>✓</ThemedText>
               </Pressable>
             </View>
@@ -673,6 +723,18 @@ const styles = StyleSheet.create({
   switcherTextSelected: {
     fontWeight: '700',
   },
+  compactPressablePressed: {
+    transform: [{ scale: 0.92 }, { translateY: 1 }],
+    opacity: 0.84,
+    borderWidth: 1.2,
+    shadowOpacity: 0.2,
+  },
+  inlinePressablePressed: {
+    opacity: 0.84,
+    transform: [{ scale: 0.92 }, { translateY: 1 }],
+    borderWidth: 1.2,
+    shadowOpacity: 0.2,
+  },
   list: {
     padding: 16,
     paddingBottom: 24,
@@ -684,6 +746,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  cardPressed: {
+    transform: [{ scale: 0.92 }],
+    opacity: 0.84,
+    shadowOpacity: 0.22,
+    borderWidth: 1.2,
   },
   cardContent: {
     padding: 16,
