@@ -88,10 +88,10 @@ Prepared in repo:
   2. `assets/store/screenshots/phone-02-explore.png` — `1080 × 1920`.
   3. `assets/store/screenshots/phone-03-my-recipes.png` — `1080 × 1920`.
   4. `assets/store/screenshots/phone-04-settings.png` — `1080 × 1920`.
-- User-provided icon-style source: `assets/store/source/slushi-party-user-icon.jpg`.
+- User-provided neon logo source: `assets/store/source/slushi-party-neon-logo.jpg`.
+- Previous user-provided icon-style source kept for reference: `assets/store/source/slushi-party-user-icon.jpg`.
 - Asset generation script: `scripts/generate-store-assets.py`.
-  - The script crops the source image to remove the right-edge neighboring-icon sliver.
-  - The script preserves the icy blue/pink slush/straw style but redraws the lower wordmark as official **SLUSHI PARTY** branding.
+  - The script uses the approved neon **Slushi Party** logo as the main source for icon, splash, feature graphic, and screenshot hero art.
 - FR/EN listing copy: `docs/store-listing.md`.
 - Privacy policy draft: `docs/privacy-policy.md`.
 
