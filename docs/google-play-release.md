@@ -3,8 +3,10 @@
 ## Release target
 
 - App name: **Slushi Party**
-- Android package: `com.mora9s.slushiparty`
-- Initial Android version code: `1`
+- `slug`: `perfectgranita` (retained to match the existing EAS project ID)
+- `scheme`: `slushiparty`
+- `android.package`: `com.mora9s.slushiparty`
+- `android.versionCode`: `1`
 - Initial app version: `1.0.0`
 - Expo workflow: managed Expo / EAS Build
 - First Play track target: **Internal testing**
