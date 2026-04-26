@@ -1,13 +1,18 @@
 {
   "expo": {
     "name": "Slushi Party",
-    "slug": "perfectgranita",
-    "scheme": "perfectgranita",
+    "slug": "slushiparty",
+    "scheme": "slushiparty",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "android": {
-      "package": "com.mora9s.perfectgranita"
+      "package": "com.mora9s.slushiparty",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/store/adaptive-icon-foreground.png",
+        "backgroundColor": "#ff7a1a"
+      }
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,6 +25,12 @@
         "projectId": "87ab4503-48cd-4be5-8cac-f06c556166ea"
       }
     },
-    "owner": "stefultra"
+    "owner": "stefultra",
+    "icon": "./assets/store/icon.png",
+    "splash": {
+      "image": "./assets/store/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#fff7ed"
+    }
   }
 }

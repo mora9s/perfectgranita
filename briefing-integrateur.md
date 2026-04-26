@@ -4,7 +4,7 @@
 ### Contexte projet
 Slushi Party est l'application Expo / React Native de recettes pour **Ninja Slushi** et **Ninja Slushi Max**.
 
-L'ancien branding PerfectGranita ne doit plus apparaître dans l'expérience produit visible. Les identifiants techniques historiques peuvent rester inchangés si cela évite de casser slug, scheme, package mobile ou compatibilité.
+L'ancien branding PerfectGranita ne doit plus apparaître dans l'expérience produit visible. Pour la préparation Google Play, l'identifiant Android retenu est `com.mora9s.slushiparty`; les traces `perfectgranita` restantes concernent uniquement le CLI/npm historique ou des notes d'ancien nom.
 
 ---
 
