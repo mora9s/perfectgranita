@@ -283,13 +283,26 @@ function RecipeDetail({
 }
 
 export default function RecipeScreen() {
-  const { recipes } = useRecipes();
+  const { recipes, isLoading } = useRecipes();
   const { machinePreferenceMode, selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
+
+  if (!recipe && isLoading) {
+    return (
+      <ThemedView style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.errorContainer}>
+          <ThemedText type="title" style={[styles.errorTitle, { color: colors.primary }]}> 
+            {language === 'fr' ? 'Chargement…' : 'Loading…'}
+          </ThemedText>
+        </View>
+      </ThemedView>
+    );
+  }
 
   if (!recipe) {
     return (
