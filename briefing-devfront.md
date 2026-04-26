@@ -1,80 +1,53 @@
 # 📋 BRIEFING - DevFront
-## Mission: Écran "Mes Recettes" (My Recipes)
+## Mission: Finalisation UI Slushi Party
 
-### Contexte Projet
-PerfectGranita - Application Expo/React Native pour machine à granita
-**Plan FR/EN:** Support multilingue FR/EN en cours d'implémentation
+### Contexte projet
+Slushi Party est une application Expo / React Native pour préparer des recettes adaptées aux machines **Ninja Slushi** et **Ninja Slushi Max**.
 
----
+L'ancien nom du projet était PerfectGranita. Le branding visible doit désormais rester **Slushi Party**.
 
-## 🎯 Ta Mission
-
-Créer un nouvel onglet **"Mes Recettes"** dans la navigation par onglets.
-
----
-
-## 📁 Fichiers à modifier/créer
-
-### 1. Modifier `/app/(tabs)/_layout.tsx`
-Ajouter un nouvel onglet "Mes Recettes" (my-recipes) avec:
-- **Titre:** "Mes Recettes"
-- **Icône:** `book.fill` (ou similaire)
-- **Position:** après l'onglet "Explore"
-
-### 2. Créer `/app/(tabs)/my-recipes.tsx`
-Nouvel écran qui affiche:
-- Header avec titre "📖 Mes Recettes"
-- Liste des recettes personnalisées (`isCustom: true`)
-- Message quand il n'y a pas de recettes personnalisées
-- Bouton "+ Créer une recette" qui redirige vers `/modal`
+### État actuel
+- Navigation par onglets en place : Accueil, Explorer, Mes Recettes, Paramètres.
+- Choix machine sur l'accueil avec visuels officiels.
+- Recettes catalogue affichées dans Explorer avec volumes/programmes adaptés à la machine.
+- Mes Recettes existe et affiche les recettes personnalisées.
+- Thème clair/sombre/système et langue FR/EN disponibles.
 
 ---
 
-## 🎨 Design Guidelines
+## 🎯 Mission DevFront
 
-Le design doit être **cohérent** avec l'écran `explore.tsx` existant:
-- Même style de cartes
-- Même palette de couleurs (violet #8B5CF6)
-- Même typographie
+Finaliser l'expérience utilisateur et vérifier la cohérence visuelle.
 
-### Structure suggérée pour my-recipes.tsx
+### À vérifier / améliorer
+- [ ] Les écrans utilisent le nom **Slushi Party** lorsqu'un nom produit est visible.
+- [ ] Les onglets sont lisibles et cohérents sur mobile et web.
+- [ ] L'écran Accueil rend clairement le choix Ninja Slushi / Ninja Slushi Max.
+- [ ] L'écran Explorer reste compact malgré les filtres et cartes recettes.
+- [ ] L'écran Mes Recettes gère : état vide, liste avec recettes, accès détail, bouton création.
+- [ ] Le détail recette affiche correctement les données machine, y compris pour les recettes personnalisées.
+- [ ] Les textes FR/EN restent cohérents quand on change de langue.
+- [ ] Aucun contenu historique PerfectGranita ne doit apparaître dans l'UI finale.
 
-```typescript
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useRecipes } from '@/app/hooks/use-recipes';
-import type { Recipe } from '@/app/types/database';
-
-// Afficher uniquement les recettes où isCustom === true
-// + bouton pour créer une nouvelle recette
-```
-
-### 3. Optionnel: Navigation depuis SlushiScreen
-Dans `/app/slushi.tsx`, ajouter une troisième option "Mes Recettes" qui redirige vers l'onglet.
-
----
-
-## ✅ Checklist de validation
-
-- [ ] Onglet "Mes Recettes" présent dans la navigation
-- [ ] Écran `/app/(tabs)/my-recipes.tsx` créé et fonctionnel
-- [ ] Design cohérent avec le reste de l'application
-- [ ] Navigation fonctionne correctement
-- [ ] Gestion du cas vide (pas de recettes perso) implémentée
+### Fichiers principaux
+- `app/(tabs)/index.tsx`
+- `app/(tabs)/explore.tsx`
+- `app/(tabs)/my-recipes.tsx`
+- `app/(tabs)/settings.tsx`
+- `app/recipe/[id].tsx`
+- `app/modal.tsx`
+- `app/language/language-context.tsx`
+- `app/theme/theme-context.tsx`
 
 ---
 
-## 🔗 Dépendances
-- Attendre que DevBack ait terminé (recette Mojito Frozen)
+## ✅ Validation attendue
+- [ ] `npm test`
+- [ ] `npx tsc --noEmit`
+- [ ] Smoke test Expo Web : accueil → choix machine → Explorer → Mes Recettes → création recette → reload → détail recette.
+- [ ] Console navigateur sans erreur JS bloquante.
 
-## 📤 Livrables
-- `/app/(tabs)/_layout.tsx` modifié
-- `/app/(tabs)/my-recipes.tsx` créé
+## Livrable
+Un court compte-rendu listant les écrans vérifiés, les problèmes trouvés et les corrections proposées ou appliquées.
 
----
-
-**⚡ Action requise:** Confirme la réception de ce briefing. Attends le signal de l'Architecte pour commencer (après validation DevBack).
-
-*Architecte - PerfectGranita Project*
+*Architecte - Slushi Party Project*

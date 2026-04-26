@@ -1,34 +1,52 @@
-# Spécifications - Vérification Intégration
+# Spécifications Intégrateur - Slushi Party
 
 ## Contexte
-Projet PerfectGranita - Application Expo/React Native pour machine à granita
+Slushi Party est une application Expo / React Native pour recettes **Ninja Slushi** et **Ninja Slushi Max**.
 
-## Tâche de l'intégrateur
+## Objectif
+Valider qu'une branche est prête à être poussée ou ouverte en PR sans casser l'expérience principale.
 
-### 1. Vérifier le travail de devback
-- [ ] La recette Mojito Frozen est présente dans `/app/data/recipes/default-recipes.ts`
-- [ ] L'ID est unique (`recipe-mojito-frozen`)
-- [ ] Tous les champs obligatoires sont présents
-- [ ] Le fichier compile sans erreur TypeScript
-- [ ] La recette apparaît dans la liste des cocktails (écran Explore)
+## Checklist de validation
 
-### 2. Vérifier le travail de devfront
-- [ ] L'onglet "Mes Recettes" est présent dans la navigation
-- [ ] L'écran `/app/(tabs)/my-recipes.tsx` existe et s'affiche
-- [ ] Le design est cohérent avec le reste de l'application
-- [ ] La navigation fonctionne correctement
-- [ ] L'écran gère bien les cas vides (pas de recettes perso)
+### 1. Branding
+- [ ] Nom visible : Slushi Party.
+- [ ] Titre web : Slushi Party.
+- [ ] README aligné sur l'app actuelle.
+- [ ] Ancien nom PerfectGranita absent de l'UI visible.
 
-### 3. Vérification globale
-- [ ] L'application compile (`npx tsc --noEmit`)
-- [ ] Aucune erreur de lint
-- [ ] Les tests manuels passent (navigation, affichage)
+### 2. Parcours utilisateur principal
+- [ ] Accueil affiché sans erreur.
+- [ ] Sélection Ninja Slushi et Ninja Slushi Max fonctionnelle.
+- [ ] Explorer affiche les recettes et les volumes adaptés.
+- [ ] Détail recette catalogue accessible.
+- [ ] Mes Recettes affiche l'état vide.
+- [ ] Création d'une recette personnalisée fonctionnelle.
+- [ ] Recette personnalisée visible dans Mes Recettes.
+- [ ] Recette personnalisée encore présente après reload.
+- [ ] Détail recette personnalisée accessible après reload.
+- [ ] Paramètres affichés sans erreur.
+
+### 3. Validation technique
+- [ ] `npm test` passe.
+- [ ] `npx tsc --noEmit` passe.
+- [ ] Console navigateur sans erreur JS bloquante pendant le smoke test.
+- [ ] Aucun fichier généré inutile commité.
+- [ ] `git status` propre après commit.
 
 ### 4. Rapport attendu
-Fournir un compte-rendu avec:
-- Statut de chaque vérification (OK/KO)
-- Problèmes éventuels trouvés
-- Recommandations si besoin
+Fournir :
+- statut global : prêt / prêt avec réserves / non prêt ;
+- liste des vérifications OK ;
+- bugs ou risques restants ;
+- commits locaux à pousser ;
+- recommandation push/PR.
+
+## Commandes utiles
+```bash
+npm test
+npx tsc --noEmit
+CI=1 npx expo start --web --port 8082 --clear
+```
 
 ## Livrable
-- Rapport de vérification détaillé
+Rapport de vérification court et actionnable.

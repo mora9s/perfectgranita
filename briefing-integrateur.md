@@ -1,66 +1,56 @@
 # 📋 BRIEFING - Intégrateur
-## Mission: Vérification et Validation Globale
+## Mission: Vérification globale Slushi Party
 
-### Contexte Projet
-PerfectGranita - Application Expo/React Native pour machine à granita
-**Plan FR/EN:** Support multilingue FR/EN en cours d'implémentation
+### Contexte projet
+Slushi Party est l'application Expo / React Native de recettes pour **Ninja Slushi** et **Ninja Slushi Max**.
 
----
-
-## 🎯 Ta Mission
-
-Vérifier l'intégration complète des travaux de DevBack et DevFront, puis fournir un rapport de validation.
+L'ancien branding PerfectGranita ne doit plus apparaître dans l'expérience produit visible. Les identifiants techniques historiques peuvent rester inchangés si cela évite de casser slug, scheme, package mobile ou compatibilité.
 
 ---
 
-## 🔍 Phase 1: Vérification DevBack
+## 🎯 Mission Intégrateur
 
-### À vérifier:
-- [ ] La recette Mojito Frozen est présente dans `/app/data/recipes/default-recipes.ts`
-- [ ] L'ID est unique (`recipe-mojito-frozen`)
-- [ ] Tous les champs obligatoires sont présents
-- [ ] Le fichier compile sans erreur TypeScript
-- [ ] La recette apparaît dans la liste des cocktails (écran Explore)
+Vérifier que les changements front, données et persistance forment une version cohérente et utilisable.
 
----
+## 🔍 Phase 1 — Branding et configuration
+- [ ] `app.json` affiche `Slushi Party` comme nom d'application.
+- [ ] Le titre web affiche `Slushi Party`.
+- [ ] Le README décrit bien Slushi Party et l'état actuel Expo / React Native.
+- [ ] Aucun écran produit ne montre l'ancien nom PerfectGranita.
 
-## 🔍 Phase 2: Vérification DevFront
+## 🔍 Phase 2 — Navigation et UI
+- [ ] Accueil : choix Ninja Slushi / Ninja Slushi Max clair et sélection active visible.
+- [ ] Explorer : liste recettes affichée, filtres accessibles, recap compact.
+- [ ] Mes Recettes : état vide + bouton création + liste après création.
+- [ ] Paramètres : thème, langue, machine par défaut, don.
+- [ ] Détail recette : ingrédients, machine active, programme, volumes, temps.
 
-### À vérifier:
-- [ ] L'onglet "Mes Recettes" est présent dans la navigation
-- [ ] L'écran `/app/(tabs)/my-recipes.tsx` existe et s'affiche
-- [ ] Le design est cohérent avec le reste de l'application
-- [ ] La navigation fonctionne correctement
-- [ ] L'écran gère bien les cas vides (pas de recettes perso)
+## 🔍 Phase 3 — Données et machine scaling
+- [ ] Les volumes changent quand on sélectionne Slushi vs Slushi Max.
+- [ ] Les recettes catalogue gardent leurs profils machine.
+- [ ] Les recettes personnalisées restent consultables en détail.
+- [ ] Aucune recette personnalisée ne masque une recette catalogue.
 
----
+## 🔍 Phase 4 — Persistance locale
+- [ ] Créer une recette personnalisée.
+- [ ] Recharger l'app.
+- [ ] Vérifier que la recette existe toujours dans Mes Recettes.
+- [ ] Ouvrir son détail après reload sans écran “recette manquante”.
 
-## 🔍 Phase 3: Vérification Globale
-
-### À vérifier:
-- [ ] L'application compile (`npx tsc --noEmit`)
-- [ ] Aucune erreur de lint
-- [ ] Les tests manuels passent (navigation, affichage)
+## 🔍 Phase 5 — Validation technique
+- [ ] `npm test`
+- [ ] `npx tsc --noEmit`
+- [ ] Smoke test Expo Web.
+- [ ] Console navigateur sans erreur JS bloquante.
+- [ ] `git status` propre après commit local.
 
 ---
 
 ## 📊 Rapport attendu
+Fournir un compte-rendu court avec :
+- statut OK/KO par phase ;
+- bugs bloquants éventuels ;
+- recommandations avant push/PR ;
+- commit(s) locaux à pousser si validation donnée.
 
-Fournir un compte-rendu avec:
-- **Statut** de chaque vérification (✅ OK / ❌ KO)
-- **Problèmes éventuels** trouvés (avec détails)
-- **Recommandations** si besoin
-
----
-
-## 🔗 Dépendances
-- Attendre que DevBack ET DevFront aient terminé
-
-## 📤 Livrable
-- Rapport de vérification détaillé
-
----
-
-**⚡ Action requise:** Confirme la réception de ce briefing. Attends le signal de l'Architecte pour commencer (après validation DevBack + DevFront).
-
-*Architecte - PerfectGranita Project*
+*Architecte - Slushi Party Project*

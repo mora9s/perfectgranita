@@ -1,52 +1,51 @@
-# Spécifications - Ajout recette Mojito Frozen
+# Spécifications DevBack - Slushi Party
 
 ## Contexte
-Projet PerfectGranita - Application Expo/React Native pour machine à granita
+Slushi Party utilise un catalogue de recettes cocktail/slush adapté aux machines **Ninja Slushi** et **Ninja Slushi Max**.
 
-## Tâche de devback
+## Objectif
+Garantir la qualité des données recettes, la cohérence des profils machine et la persistance locale des recettes personnalisées.
 
-### 1. Ajouter la recette "Mojito Frozen" dans `/app/data/recipes/default-recipes.ts`
+## Catalogue recettes
+Source principale : `app/data/imported-cocktail-recipes.ts`.
 
-La recette doit suivre le type `Recipe` défini dans `/app/types/database.ts`:
+Chaque recette catalogue doit :
+- avoir un `id` stable et unique ;
+- avoir `isCustom: false` ;
+- inclure nom, emoji, description, ingrédients, instructions, proportions, temps ;
+- définir les profils machine pertinents dans `machineProfiles` ;
+- utiliser `ingredientItems[].volumesMl` quand les volumes diffèrent par machine ;
+- ne pas dupliquer une recette uniquement pour Slushi / Slushi Max.
 
-```typescript
-{
-  id: 'recipe-mojito-frozen',
-  name: 'Mojito Frozen',
-  description: 'La version glacée et rafraîchissante du célèbre cocktail cubain, sans alcool.',
-  machineId: 'slushi',
-  category: 'classic', // ou 'fruity' selon ta préférence
-  ingredients: [
-    { name: 'Eau', quantity: 300, unit: 'ml' },
-    { name: 'Sucre de canne', quantity: 80, unit: 'g' },
-    { name: 'Jus de citron vert', quantity: 80, unit: 'ml' },
-    { name: 'Feuilles de menthe fraîche', quantity: 15, unit: 'piece' },
-    { name: 'Eau gazeuse', quantity: 200, unit: 'ml' },
-  ],
-  instructions: [
-    'Dans un bol, écraser délicatement les feuilles de menthe avec le sucre pour libérer les arômes',
-    'Ajouter le jus de citron vert et mélanger jusqu\'à dissolution du sucre',
-    'Ajouter l\'eau et l\'eau gazeuse, mélanger doucement',
-    'Filtrer pour retirer les feuilles de menthe si désiré',
-    'Verser dans le réservoir de la machine et lancer le cycle',
-  ],
-  prepTimeMinutes: 15,
-  freezeTimeHours: 24,
-  difficulty: 'medium',
-  isCustom: false,
-  isFavorite: false,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-}
-```
+## Profils machine
+Machines supportées :
+- `slushi` : Ninja Slushi, capacité cible 1.89L ;
+- `slushi-max` : Ninja Slushi Max, capacité cible 3.31L.
 
-### 2. Vérifier que la recette est bien exportée
-La fonction `getDefaultRecipesForMachine('slushi')` doit retourner la nouvelle recette.
+Les volumes, programmes, temps et ABV estimés doivent rester compatibles avec les contraintes machine.
 
-### 3. Tests à effectuer
-- Vérifier que le fichier compile sans erreur TypeScript
-- Vérifier que la recette a un ID unique
-- Vérifier que tous les champs obligatoires sont présents
+## Recettes personnalisées
+Source runtime : `useRecipes()`.
 
-## Livrable
-- Fichier `/app/data/recipes/default-recipes.ts` modifié avec la nouvelle recette
+Exigences :
+- chargement local au démarrage ;
+- merge avec les recettes catalogue ;
+- pas de remplacement d'une recette catalogue par une recette personnalisée au même id ;
+- persistance locale sur ajout/suppression ;
+- écritures sérialisées pour éviter les races ;
+- payload local corrompu signalé via `error` ;
+- consommateurs existants compatibles même s'ils ignorent `isLoading` / `error`.
+
+## Tests
+- `tests/recipe-persistence.test.ts` couvre parsing, filtrage et merge.
+- Ajouter des tests si une nouvelle règle de persistance ou de merge est introduite.
+
+## Validation
+- `npm test`
+- `npx tsc --noEmit`
+- Test manuel : création recette personnalisée → reload → recette toujours présente.
+- Test manuel : bascule Slushi / Slushi Max → volumes et programmes changent.
+
+## Livrables
+- Changements de données/logique ciblés.
+- Compte-rendu des validations et risques restants.

@@ -1,56 +1,50 @@
-# Spécifications - Ajout recette Mojito Frozen
+# Spécifications DevFront - Slushi Party
 
 ## Contexte
-Projet PerfectGranita - Application Expo/React Native pour machine à granita
+Slushi Party est une application Expo / React Native de recettes adaptées à **Ninja Slushi** et **Ninja Slushi Max**.
 
-## Tâche de devfront
+## Objectif
+Maintenir une UI simple, lisible et cohérente avec le branding Slushi Party.
 
-### 1. Ajouter l'écran "Mes Recettes" (My Recipes)
+## Exigences fonctionnelles
 
-Créer un nouvel onglet "Mes Recettes" dans la navigation par onglets.
+### Navigation
+- Onglets disponibles : Accueil, Explorer, Mes Recettes, Paramètres.
+- Les onglets doivent rester accessibles sur mobile et web.
 
-### 2. Modifications à effectuer
+### Accueil
+- Afficher le choix entre Ninja Slushi et Ninja Slushi Max.
+- Montrer la machine active.
+- Le choix machine doit mettre à jour les proportions affichées dans Explorer et Détail.
 
-#### A. Modifier `/app/(tabs)/_layout.tsx`
-Ajouter un nouvel onglet "Mes Recettes" (my-recipes) avec:
-- Titre: "Mes Recettes"
-- Icône: `book.fill` (ou similaire)
-- Position: après l'onglet "Explore"
+### Explorer
+- Afficher les recettes catalogue.
+- Proposer les filtres type de boisson / alcool / Monin selon l'état actuel de l'app.
+- Garder un recap de filtres compact.
+- Les cartes doivent afficher nom, description, programme, volume et temps.
 
-#### B. Créer `/app/(tabs)/my-recipes.tsx`
-Créer un nouvel écran qui affiche:
-- Un header avec titre "📖 Mes Recettes"
-- La liste des recettes personnalisées (isCustom: true)
-- Un message quand il n'y a pas de recettes personnalisées
-- Un bouton "+ Créer une recette" qui redirige vers `/modal`
+### Mes Recettes
+- Afficher un état vide clair.
+- Permettre la création via `/modal`.
+- Afficher les recettes personnalisées persistées localement.
+- Ouvrir le détail d'une recette personnalisée.
 
-Le design doit être cohérent avec l'écran explore.tsx existant:
-- Même style de cartes
-- Même palette de couleurs (violet #8B5CF6)
-- Même typographie
+### Détail recette
+- Attendre la fin du chargement local avant d'afficher une erreur de recette manquante.
+- Afficher les informations machine et temps même si certains champs d'une recette personnalisée sont vides.
 
-#### C. Optionnel: Ajouter une navigation depuis SlushiScreen
-Dans `/app/slushi.tsx`, ajouter une troisième option "Mes Recettes" qui redirige vers l'onglet.
+### Paramètres
+- Thème : clair, sombre, système.
+- Langue : FR/EN.
+- Machine par défaut : les deux, Slushi seule, Slushi Max seule.
+- Section don présente.
 
-### 3. Structure du fichier my-recipes.tsx
-
-```typescript
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useRecipes } from '@/app/hooks/use-recipes';
-import type { Recipe } from '@/app/types/database';
-
-// Afficher uniquement les recettes où isCustom === true
-// + bouton pour créer une nouvelle recette
-```
-
-### 4. Tests à effectuer
-- Vérifier que la navigation fonctionne
-- Vérifier que le design est cohérent
-- Vérifier que l'affichage fonctionne avec/sans recettes personnalisées
+## Validation
+- `npm test`
+- `npx tsc --noEmit`
+- Smoke test Expo Web : accueil → machine Max → Explorer → Mes Recettes → créer recette → reload → détail.
+- Console navigateur sans erreur JS bloquante.
 
 ## Livrables
-- `/app/(tabs)/_layout.tsx` modifié
-- `/app/(tabs)/my-recipes.tsx` créé
+- Changements UI ciblés.
+- Compte-rendu des écrans testés et bugs éventuels.

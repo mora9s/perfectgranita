@@ -1,69 +1,53 @@
 # 📋 BRIEFING - DevBack
-## Mission: Ajout recette Mojito Frozen
+## Mission: Données recettes et persistance locale Slushi Party
 
-### Contexte Projet
-PerfectGranita - Application Expo/React Native pour machine à granita
-**Plan FR/EN:** Support multilingue FR/EN en cours d'implémentation
+### Contexte projet
+Slushi Party est une application Expo / React Native pour recettes **Ninja Slushi** et **Ninja Slushi Max**.
 
----
+L'ancien nom était PerfectGranita. Le produit visible doit rester **Slushi Party**.
 
-## 🎯 Ta Mission
-
-Ajouter la recette **"Mojito Frozen"** dans le fichier `/app/data/recipes/default-recipes.ts`
-
-### Spécifications de la recette
-
-```typescript
-{
-  id: 'recipe-mojito-frozen',
-  name: 'Mojito Frozen',
-  description: 'La version glacée et rafraîchissante du célèbre cocktail cubain, sans alcool.',
-  machineId: 'slushi',
-  category: 'classic', // ou 'fruity' selon ta préférence
-  ingredients: [
-    { name: 'Eau', quantity: 300, unit: 'ml' },
-    { name: 'Sucre de canne', quantity: 80, unit: 'g' },
-    { name: 'Jus de citron vert', quantity: 80, unit: 'ml' },
-    { name: 'Feuilles de menthe fraîche', quantity: 15, unit: 'piece' },
-    { name: 'Eau gazeuse', quantity: 200, unit: 'ml' },
-  ],
-  instructions: [
-    'Dans un bol, écraser délicatement les feuilles de menthe avec le sucre pour libérer les arômes',
-    'Ajouter le jus de citron vert et mélanger jusqu\'à dissolution du sucre',
-    'Ajouter l\'eau et l\'eau gazeuse, mélanger doucement',
-    'Filtrer pour retirer les feuilles de menthe si désiré',
-    'Verser dans le réservoir de la machine et lancer le cycle',
-  ],
-  prepTimeMinutes: 15,
-  freezeTimeHours: 24,
-  difficulty: 'medium',
-  isCustom: false,
-  isFavorite: false,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-}
-```
+### État actuel
+- Le catalogue source est `app/data/imported-cocktail-recipes.ts`.
+- Les types sont dans `app/types/database.ts` et `app/types/machine.ts`.
+- Les profils machine sont portés par `machineProfiles` sur chaque recette, pas par duplication de recettes.
+- Les proportions/volumes par machine sont dans `ingredientItems[].volumesMl` et les helpers de `app/machine/scale.ts`.
+- Les recettes personnalisées sont chargées via `useRecipes()` et persistées localement avec `expo-file-system`.
 
 ---
 
-## ✅ Checklist de validation
+## 🎯 Mission DevBack
 
-- [ ] Recette ajoutée dans `/app/data/recipes/default-recipes.ts`
-- [ ] ID unique: `recipe-mojito-frozen`
-- [ ] Tous les champs obligatoires présents (respecte le type `Recipe`)
-- [ ] Fichier compile sans erreur TypeScript
-- [ ] La fonction `getDefaultRecipesForMachine('slushi')` retourne la nouvelle recette
+Maintenir la qualité des données recettes, la logique machine et la persistance locale-first.
+
+### À vérifier / améliorer
+- [ ] Chaque recette catalogue a un `id` stable et unique.
+- [ ] Chaque recette a des textes FR cohérents et, si possible, des traductions EN dans `i18n`.
+- [ ] Chaque recette catalogue contient un `machineProfiles.slushi` et un `machineProfiles['slushi-max']` pertinent.
+- [ ] Les volumes `volumesMl` restent cohérents avec les capacités : Slushi 1.89L, Slushi Max 3.31L.
+- [ ] Les recettes personnalisées ne remplacent jamais une recette catalogue avec le même id.
+- [ ] Les payloads locaux corrompus sont signalés via `error` au lieu d'être supprimés silencieusement.
+- [ ] Les écritures locales sont sérialisées pour éviter les pertes de données.
+
+### Fichiers principaux
+- `app/data/imported-cocktail-recipes.ts`
+- `app/types/database.ts`
+- `app/types/machine.ts`
+- `app/machine/config.ts`
+- `app/machine/scale.ts`
+- `app/hooks/use-recipes.ts`
+- `app/hooks/recipe-persistence.ts`
+- `app/hooks/recipe-storage.ts`
+- `tests/recipe-persistence.test.ts`
 
 ---
 
-## 🔗 Dépendances
-- Aucune - tu es le premier à intervenir
+## ✅ Validation attendue
+- [ ] `npm test`
+- [ ] `npx tsc --noEmit`
+- [ ] Test manuel : créer une recette perso, recharger l'app, vérifier qu'elle existe toujours.
+- [ ] Test manuel : basculer Slushi / Slushi Max et vérifier volumes/programmes.
 
-## 📤 Livrable
-Fichier `/app/data/recipes/default-recipes.ts` modifié avec la nouvelle recette
+## Livrable
+Un court compte-rendu indiquant les validations faites, les incohérences de données éventuelles et les corrections proposées ou appliquées.
 
----
-
-**⚡ Action requise:** Confirme la réception de ce briefing et commence l'implémentation. Signale quand c'est terminé.
-
-*Architecte - PerfectGranita Project*
+*Architecte - Slushi Party Project*
