@@ -147,8 +147,8 @@ Do **not** commit Google service account JSON or API credentials.
 - [ ] Expo Go phone smoke test passes.
 - [ ] Preview APK smoke test passes.
 - [ ] Production AAB build succeeds.
-- [ ] Store listing FR filled.
-- [ ] Store listing EN filled.
+- [x] Store listing FR copy prepared in `docs/store-listing.md` and `docs/play-console-submission-guide.md`.
+- [x] Store listing EN copy prepared in `docs/store-listing.md` and `docs/play-console-submission-guide.md`.
 - [ ] Privacy policy published at a public URL.
 - [ ] Data safety completed.
 - [ ] Content rating completed.
