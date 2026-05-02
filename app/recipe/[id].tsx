@@ -1,8 +1,10 @@
 import { Image, Pressable, StyleSheet, ScrollView, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { useFavorites } from '@/app/hooks/use-favorites';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
@@ -287,12 +289,14 @@ function RecipeDetail({
 
 export default function RecipeScreen() {
   const { recipes, isLoading } = useRecipes();
+  const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
   const { machinePreferenceMode, selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   const recipe = recipes.find((r) => r.id === id);
+  const isFavorite = recipe ? favoriteRecipeIdSet.has(recipe.id) : false;
 
   if (!recipe && isLoading) {
     return (
@@ -333,18 +337,34 @@ export default function RecipeScreen() {
         }}
       />
       <View style={styles.backHeader}>
-        <Pressable
-          onPress={withHaptics(() => router.back())}
-          style={[
-            styles.backButtonTop,
-            {
-              backgroundColor: resolvedTheme === 'dark' ? 'rgba(26,29,36,0.85)' : 'rgba(255,255,255,0.85)',
-              shadowColor: colors.shadow,
-            },
-          ]}
-        >
-          <ThemedText style={[styles.backButtonTopText, { color: colors.primary }]}>←</ThemedText>
-        </Pressable>
+        <View style={styles.backHeaderRow}>
+          <Pressable
+            onPress={withHaptics(() => router.back())}
+            style={[
+              styles.backButtonTop,
+              {
+                backgroundColor: resolvedTheme === 'dark' ? 'rgba(26,29,36,0.85)' : 'rgba(255,255,255,0.85)',
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <ThemedText style={[styles.backButtonTopText, { color: colors.primary }]}>←</ThemedText>
+          </Pressable>
+          <Pressable
+            onPress={withHaptics(() => toggleFavorite(recipe.id))}
+            accessibilityRole="button"
+            accessibilityLabel={isFavorite ? t('favoritesRemove') : t('favoritesAdd')}
+            style={[
+              styles.favoriteButtonTop,
+              {
+                backgroundColor: resolvedTheme === 'dark' ? 'rgba(26,29,36,0.85)' : 'rgba(255,255,255,0.85)',
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <FontAwesome name={isFavorite ? 'star' : 'star-o'} size={19} color={isFavorite ? colors.primary : colors.textMuted} />
+          </Pressable>
+        </View>
       </View>
       <RecipeDetail
         recipe={recipe}
@@ -375,7 +395,23 @@ const styles = StyleSheet.create({
     zIndex: 10,
     backgroundColor: 'transparent',
   },
+  backHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   backButtonTop: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  favoriteButtonTop: {
     width: 40,
     height: 40,
     borderRadius: 20,

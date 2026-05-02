@@ -1,0 +1,165 @@
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { withHaptics } from '@/app/utils/press-feedback';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { useRecipes } from '@/app/hooks/use-recipes';
+import { useFavorites } from '@/app/hooks/use-favorites';
+import { useLanguage } from '@/app/language/language-context';
+import { getLocalizedRecipeText } from '@/app/recipes/localization';
+import { useTheme } from '@/app/theme/theme-context';
+import type { Recipe } from '@/app/types/database';
+
+function FavoriteCard({
+  recipe,
+  language,
+  colors,
+  resolvedTheme,
+  onToggleFavorite,
+}: {
+  recipe: Recipe;
+  language: 'fr' | 'en';
+  colors: ReturnType<typeof useTheme>['colors'];
+  resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
+  onToggleFavorite: (id: string) => void;
+}) {
+  const localizedName = getLocalizedRecipeText(recipe, language, 'name');
+  const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
+
+  return (
+    <Pressable
+      android_ripple={{ color: resolvedTheme === 'dark' ? 'rgba(216,204,255,0.28)' : 'rgba(109,40,217,0.22)' }}
+      unstable_pressDelay={80}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: colors.surface, shadowColor: colors.shadow },
+        pressed && [styles.cardPressed, { backgroundColor: resolvedTheme === 'dark' ? '#2A3F59' : '#E9DDFF' }],
+      ]}
+      onPress={withHaptics(() => router.push(`/recipe/${recipe.id}`))}
+    >
+      <View style={styles.cardHeaderRow}>
+        <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            withHaptics(() => onToggleFavorite(recipe.id))();
+          }}
+          hitSlop={10}
+          style={styles.favoriteButton}
+        >
+          <FontAwesome name="star" size={22} color={colors.primary} />
+        </Pressable>
+      </View>
+      <ThemedText type="subtitle" style={styles.recipeName}>
+        {localizedName}
+      </ThemedText>
+      <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
+        {localizedDescription}
+      </ThemedText>
+    </Pressable>
+  );
+}
+
+export default function FavoritesScreen() {
+  const { recipes } = useRecipes();
+  const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
+  const { colors, resolvedTheme } = useTheme();
+  const { t, language } = useLanguage();
+
+  const favoriteRecipes = recipes.filter((recipe) => favoriteRecipeIdSet.has(recipe.id));
+
+  return (
+    <ThemedView style={styles.container}>
+      <View style={[styles.header, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="title" style={[styles.headerTitle, { color: colors.primary }]}>
+          {t('favoritesTitle')}
+        </ThemedText>
+        <ThemedText style={[styles.headerSubtitle, { color: colors.textMuted }]}>
+          {t('favoritesSubtitle')}
+        </ThemedText>
+      </View>
+
+      {favoriteRecipes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <ThemedText style={styles.emptyEmoji}>⭐</ThemedText>
+          <ThemedText type="subtitle" style={styles.emptyTitle}>
+            {t('favoritesEmptyTitle')}
+          </ThemedText>
+          <ThemedText style={[styles.emptyDescription, { color: colors.textMuted }]}>
+            {t('favoritesEmptyDescription')}
+          </ThemedText>
+        </View>
+      ) : (
+        <FlatList
+          data={favoriteRecipes}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <FavoriteCard
+              recipe={item}
+              language={language}
+              colors={colors}
+              resolvedTheme={resolvedTheme}
+              onToggleFavorite={toggleFavorite}
+            />
+          )}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  headerTitle: { marginBottom: 4 },
+  headerSubtitle: { fontSize: 14 },
+  list: { padding: 16, paddingBottom: 100 },
+  card: {
+    borderRadius: 16,
+    marginBottom: 12,
+    padding: 20,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardPressed: {
+    transform: [{ scale: 0.92 }],
+    opacity: 0.84,
+    borderWidth: 1.2,
+    shadowOpacity: 0.2,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  favoriteButton: {
+    paddingTop: 4,
+  },
+  emoji: { fontSize: 40, marginBottom: 8 },
+  recipeName: { marginBottom: 4 },
+  description: { fontSize: 14, lineHeight: 20 },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyEmoji: { fontSize: 64, marginBottom: 16 },
+  emptyTitle: { textAlign: 'center', marginBottom: 8 },
+  emptyDescription: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
+});

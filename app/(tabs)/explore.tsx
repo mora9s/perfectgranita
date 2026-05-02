@@ -1,10 +1,12 @@
 import { FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { getMarkedPressStyle, withHaptics } from '@/app/utils/press-feedback';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
+import { useFavorites } from '@/app/hooks/use-favorites';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
@@ -24,9 +26,19 @@ interface RecipeCardProps {
   language: 'fr' | 'en';
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
+  isFavorite: boolean;
+  onToggleFavorite: (recipeId: string) => void;
 }
 
-function RecipeCard({ recipe, machineId, language, colors, resolvedTheme }: RecipeCardProps) {
+function RecipeCard({
+  recipe,
+  machineId,
+  language,
+  colors,
+  resolvedTheme,
+  isFavorite,
+  onToggleFavorite,
+}: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const machineProfile = recipe.machineProfiles?.[machineId];
   const recipeImage = recipe.media?.image;
@@ -50,6 +62,16 @@ function RecipeCard({ recipe, machineId, language, colors, resolvedTheme }: Reci
         onPress={withHaptics(() => router.push(`/recipe/${recipe.id}`))}
       >
       <View style={styles.cardContent}>
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            withHaptics(() => onToggleFavorite(recipe.id))();
+          }}
+          hitSlop={10}
+          style={styles.favoriteButton}
+        >
+          <FontAwesome name={isFavorite ? 'star' : 'star-o'} size={20} color={isFavorite ? colors.primary : colors.textMuted} />
+        </Pressable>
         <View style={styles.cardLayout}>
           <View
             style={[
@@ -110,6 +132,7 @@ function getDrinkType(recipe: Recipe): DrinkTypeFilter {
 
 export default function ExploreScreen() {
   const { recipes } = useRecipes();
+  const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
   const { machinePreferenceMode, selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
@@ -503,7 +526,15 @@ export default function ExploreScreen() {
         data={filteredRecipes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <RecipeCard recipe={item} machineId={selectedMachineId} language={language} colors={colors} resolvedTheme={resolvedTheme} />
+          <RecipeCard
+            recipe={item}
+            machineId={selectedMachineId}
+            language={language}
+            colors={colors}
+            resolvedTheme={resolvedTheme}
+            isFavorite={favoriteRecipeIdSet.has(item.id)}
+            onToggleFavorite={toggleFavorite}
+          />
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -754,7 +785,14 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
   },
   cardContent: {
-    padding: 16,
+    padding: 12,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    zIndex: 2,
+    padding: 6,
   },
   cardLayout: {
     flexDirection: 'row',
