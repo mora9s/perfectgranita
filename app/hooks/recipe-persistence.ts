@@ -1,5 +1,7 @@
 import type { CustomRecipe, Recipe } from '@/app/types/database';
 
+export type RecipesSource = 'remote' | 'cache' | 'bundled';
+
 function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
@@ -66,10 +68,54 @@ export function parseCustomRecipes(rawPayload: string | null): CustomRecipe[] {
   return parsed.filter(isValidCustomRecipe);
 }
 
+export function mergeCoreAndRemoteRecipes(coreRecipes: Recipe[], remoteRecipes: Recipe[]): Recipe[] {
+  const coreOnly = coreRecipes.filter((recipe) => recipe.isCustom !== true);
+  const coreIds = new Set(coreOnly.map((recipe) => recipe.id));
+
+  const dedupedRemote: Recipe[] = [];
+  const remoteIds = new Set<string>();
+
+  remoteRecipes.forEach((recipe) => {
+    if (recipe.isCustom === true) {
+      return;
+    }
+
+    if (coreIds.has(recipe.id) || remoteIds.has(recipe.id)) {
+      return;
+    }
+
+    remoteIds.add(recipe.id);
+    dedupedRemote.push(recipe);
+  });
+
+  return [...coreOnly, ...dedupedRemote];
+}
+
 export function mergeImportedAndCustomRecipes(importedRecipes: Recipe[], customRecipes: CustomRecipe[]): Recipe[] {
   const importedOnly = importedRecipes.filter((recipe) => recipe.isCustom !== true);
   const importedIds = new Set(importedOnly.map((recipe) => recipe.id));
   const sanitizedCustom = dedupeCustomRecipesById(customRecipes).filter((recipe) => !importedIds.has(recipe.id));
 
   return [...importedOnly, ...sanitizedCustom];
+}
+
+export function buildRecipesCatalog(
+  coreRecipes: Recipe[],
+  remoteRecipes: Recipe[],
+  customRecipes: CustomRecipe[],
+): Recipe[] {
+  const mergedCoreAndRemote = mergeCoreAndRemoteRecipes(coreRecipes, remoteRecipes);
+  return mergeImportedAndCustomRecipes(mergedCoreAndRemote, customRecipes);
+}
+
+export function resolveRecipesSource(remoteRecipes: Recipe[], hasRemoteFetchSucceeded: boolean): RecipesSource {
+  if (hasRemoteFetchSucceeded && remoteRecipes.length > 0) {
+    return 'remote';
+  }
+
+  if (remoteRecipes.length > 0) {
+    return 'cache';
+  }
+
+  return 'bundled';
 }
