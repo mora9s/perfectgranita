@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { useFavorites } from '@/app/hooks/use-favorites';
+import { useRecipeRatings } from '@/app/hooks/use-recipe-ratings';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
@@ -25,6 +26,10 @@ interface RecipeDetailProps {
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
   language: 'fr' | 'en';
+  avgRating: number;
+  votesCount: number;
+  userRating: number;
+  onRate: (rating: number) => void;
 }
 
 function RecipeDetail({
@@ -37,6 +42,10 @@ function RecipeDetail({
   colors,
   resolvedTheme,
   language,
+  avgRating,
+  votesCount,
+  userRating,
+  onRate,
 }: RecipeDetailProps) {
   const { t } = useLanguage();
   const machineProfile = recipe.machineProfiles?.[machineId];
@@ -155,6 +164,20 @@ function RecipeDetail({
               <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>✨ {recipe.garnish}</ThemedText>
             </View>
           ) : null}
+        </View>
+
+        <View style={[styles.ratingCard, { backgroundColor: colors.surface }]}> 
+          <ThemedText style={[styles.ratingTitle, { color: colors.textMuted }]}>{t('ratingSectionTitle')}</ThemedText>
+          <View style={styles.ratingStarsRow}>
+            {[1, 2, 3, 4, 5].map((value) => (
+              <Pressable key={value} onPress={withHaptics(() => onRate(value))} hitSlop={8} style={styles.ratingStarButton}>
+                <FontAwesome name={value <= userRating ? 'star' : 'star-o'} size={24} color={colors.primary} />
+              </Pressable>
+            ))}
+          </View>
+          <ThemedText style={[styles.ratingSummary, { color: colors.textMuted }]}> 
+            ⭐ {avgRating > 0 ? avgRating.toFixed(1) : '—'} ({votesCount})
+          </ThemedText>
         </View>
       </View>
 
@@ -297,6 +320,7 @@ export default function RecipeScreen() {
 
   const recipe = recipes.find((r) => r.id === id);
   const isFavorite = recipe ? favoriteRecipeIdSet.has(recipe.id) : false;
+  const { getRecipeStats, getUserRating, rateRecipe } = useRecipeRatings(recipe ? [recipe.id] : []);
 
   if (!recipe && isLoading) {
     return (
@@ -376,6 +400,12 @@ export default function RecipeScreen() {
         colors={colors}
         resolvedTheme={resolvedTheme}
         language={language}
+        avgRating={getRecipeStats(recipe.id).avgRating}
+        votesCount={getRecipeStats(recipe.id).votesCount}
+        userRating={getUserRating(recipe.id)}
+        onRate={(rating) => {
+          void rateRecipe(recipe.id, rating);
+        }}
       />
     </ThemedView>
   );
@@ -488,6 +518,31 @@ const styles = StyleSheet.create({
   },
   metaChipText: {
     fontSize: 12,
+    fontWeight: '600',
+  },
+  ratingCard: {
+    marginTop: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+  },
+  ratingTitle: {
+    fontSize: 13,
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  ratingStarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  ratingStarButton: {
+    padding: 2,
+  },
+  ratingSummary: {
+    fontSize: 13,
     fontWeight: '600',
   },
   section: {

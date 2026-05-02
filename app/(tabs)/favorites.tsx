@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { useFavorites } from '@/app/hooks/use-favorites';
+import { useRecipeRatings } from '@/app/hooks/use-recipe-ratings';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
@@ -19,12 +20,16 @@ function FavoriteCard({
   colors,
   resolvedTheme,
   onToggleFavorite,
+  avgRating,
+  votesCount,
 }: {
   recipe: Recipe;
   language: 'fr' | 'en';
   colors: ReturnType<typeof useTheme>['colors'];
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
   onToggleFavorite: (id: string) => void;
+  avgRating: number;
+  votesCount: number;
 }) {
   const { selectedMachineId } = useMachine();
   const scaledProportions = scaleRecipeProportions(recipe, selectedMachineId);
@@ -84,6 +89,9 @@ function FavoriteCard({
 
             <View style={styles.metaStack}>
               <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                ⭐ {avgRating > 0 ? avgRating.toFixed(1) : '—'} ({votesCount})
+              </ThemedText>
+              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
                 ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
               </ThemedText>
               <View style={styles.metaRowCompact}>
@@ -109,6 +117,7 @@ export default function FavoritesScreen() {
   const { t, language } = useLanguage();
 
   const favoriteRecipes = recipes.filter((recipe) => favoriteRecipeIdSet.has(recipe.id));
+  const { getRecipeStats } = useRecipeRatings(favoriteRecipes.map((recipe) => recipe.id));
 
   return (
     <ThemedView style={styles.container}>
@@ -135,15 +144,20 @@ export default function FavoritesScreen() {
         <FlatList
           data={favoriteRecipes}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <FavoriteCard
-              recipe={item}
-              language={language}
-              colors={colors}
-              resolvedTheme={resolvedTheme}
-              onToggleFavorite={toggleFavorite}
-            />
-          )}
+          renderItem={({ item }) => {
+            const stats = getRecipeStats(item.id);
+            return (
+              <FavoriteCard
+                recipe={item}
+                language={language}
+                colors={colors}
+                resolvedTheme={resolvedTheme}
+                onToggleFavorite={toggleFavorite}
+                avgRating={stats.avgRating}
+                votesCount={stats.votesCount}
+              />
+            );
+          }}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />

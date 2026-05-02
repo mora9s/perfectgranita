@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { useFavorites } from '@/app/hooks/use-favorites';
+import { useRecipeRatings } from '@/app/hooks/use-recipe-ratings';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
@@ -28,6 +29,8 @@ interface RecipeCardProps {
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
   isFavorite: boolean;
   onToggleFavorite: (recipeId: string) => void;
+  avgRating: number;
+  votesCount: number;
 }
 
 function RecipeCard({
@@ -38,6 +41,8 @@ function RecipeCard({
   resolvedTheme,
   isFavorite,
   onToggleFavorite,
+  avgRating,
+  votesCount,
 }: RecipeCardProps) {
   const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const machineProfile = recipe.machineProfiles?.[machineId];
@@ -98,6 +103,9 @@ function RecipeCard({
             </ThemedText>
 
             <View style={styles.metaStack}>
+              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                ⭐ {avgRating > 0 ? avgRating.toFixed(1) : '—'} ({votesCount})
+              </ThemedText>
               <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
                 ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
               </ThemedText>
@@ -195,6 +203,8 @@ export default function ExploreScreen() {
       return drinkTypeMatch && alcoholMatch && moninMatch;
     });
   }, [activeDrinkType, activeAlcohol, activeMonin, recipes]);
+
+  const { getRecipeStats } = useRecipeRatings(filteredRecipes.map((recipe) => recipe.id));
 
   const filtersActive = activeDrinkType !== 'all' || activeAlcohol !== 'all' || activeMonin !== 'all';
 
@@ -525,17 +535,22 @@ export default function ExploreScreen() {
       <FlatList
         data={filteredRecipes}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <RecipeCard
-            recipe={item}
-            machineId={selectedMachineId}
-            language={language}
-            colors={colors}
-            resolvedTheme={resolvedTheme}
-            isFavorite={favoriteRecipeIdSet.has(item.id)}
-            onToggleFavorite={toggleFavorite}
-          />
-        )}
+        renderItem={({ item }) => {
+          const stats = getRecipeStats(item.id);
+          return (
+            <RecipeCard
+              recipe={item}
+              machineId={selectedMachineId}
+              language={language}
+              colors={colors}
+              resolvedTheme={resolvedTheme}
+              isFavorite={favoriteRecipeIdSet.has(item.id)}
+              onToggleFavorite={toggleFavorite}
+              avgRating={stats.avgRating}
+              votesCount={stats.votesCount}
+            />
+          );
+        }}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
