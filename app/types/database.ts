@@ -39,6 +39,7 @@ export interface RecipeI18n {
 
 export interface RecipeMedia {
   image?: any;
+  imageUrl?: string;
   imageAlt?: string;
 }
 

@@ -1,15 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Recipe, CustomRecipe } from '@/app/types/database';
 import { importedCocktailRecipes } from '@/app/data/imported-cocktail-recipes';
-import { mergeImportedAndCustomRecipes } from '@/app/hooks/recipe-persistence';
+import {
+  buildRecipesCatalog,
+  resolveRecipesSource,
+  type RecipesSource,
+} from '@/app/hooks/recipe-persistence';
 import { loadPersistedCustomRecipes, persistCustomRecipes } from '@/app/hooks/recipe-storage';
+import { fetchPublishedRemoteRecipes } from '@/app/services/remote-recipes';
+import { loadRemoteRecipeCache, persistRemoteRecipeCache } from '@/app/hooks/remote-recipe-cache';
 
 let sharedCustomRecipes: CustomRecipe[] = [];
+let sharedRemoteRecipes: Recipe[] = [];
+let sharedSource: RecipesSource = 'bundled';
+let sharedLastRemoteSyncAt: string | null = null;
+let sharedHasRemoteFetchSucceeded = false;
+
 let sharedError: string | null = null;
 let sharedHasInitialized = false;
 let sharedIsLoading = false;
 let sharedChangedDuringLoad = false;
 let persistQueue: Promise<void> = Promise.resolve();
+let remoteRefreshInFlight: Promise<void> | null = null;
 
 const subscribers = new Set<() => void>();
 
@@ -47,6 +59,46 @@ function createCustomRecipeId() {
   return `custom-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function applyRemoteRecipes(remoteRecipes: Recipe[], options: { hasRemoteFetchSucceeded: boolean; lastRemoteSyncAt: string | null }) {
+  sharedRemoteRecipes = remoteRecipes;
+  sharedHasRemoteFetchSucceeded = options.hasRemoteFetchSucceeded;
+  sharedLastRemoteSyncAt = options.lastRemoteSyncAt;
+  sharedSource = resolveRecipesSource(sharedRemoteRecipes, sharedHasRemoteFetchSucceeded);
+}
+
+async function refreshRemoteRecipes() {
+  if (remoteRefreshInFlight) {
+    return remoteRefreshInFlight;
+  }
+
+  remoteRefreshInFlight = (async () => {
+    try {
+      const remoteRecipes = await fetchPublishedRemoteRecipes();
+      const fetchedAt = new Date().toISOString();
+
+      applyRemoteRecipes(remoteRecipes, {
+        hasRemoteFetchSucceeded: true,
+        lastRemoteSyncAt: fetchedAt,
+      });
+
+      await persistRemoteRecipeCache({
+        fetchedAt,
+        recipes: remoteRecipes,
+      });
+
+      sharedError = null;
+      notifySubscribers();
+    } catch {
+      sharedSource = resolveRecipesSource(sharedRemoteRecipes, sharedHasRemoteFetchSucceeded);
+      notifySubscribers();
+    } finally {
+      remoteRefreshInFlight = null;
+    }
+  })();
+
+  return remoteRefreshInFlight;
+}
+
 async function initializeStore() {
   if (sharedHasInitialized || sharedIsLoading) {
     return;
@@ -56,8 +108,25 @@ async function initializeStore() {
   notifySubscribers();
 
   try {
-    const loadedRecipes = await loadPersistedCustomRecipes();
+    const [loadedRecipes, remoteCache] = await Promise.all([
+      loadPersistedCustomRecipes(),
+      loadRemoteRecipeCache(),
+    ]);
+
     sharedCustomRecipes = mergeCustomRecipesById(loadedRecipes, sharedCustomRecipes);
+
+    if (remoteCache) {
+      applyRemoteRecipes(remoteCache.recipes, {
+        hasRemoteFetchSucceeded: false,
+        lastRemoteSyncAt: remoteCache.fetchedAt,
+      });
+    } else {
+      applyRemoteRecipes([], {
+        hasRemoteFetchSucceeded: false,
+        lastRemoteSyncAt: null,
+      });
+    }
+
     sharedError = null;
 
     if (sharedChangedDuringLoad) {
@@ -70,17 +139,24 @@ async function initializeStore() {
     sharedIsLoading = false;
     sharedChangedDuringLoad = false;
     notifySubscribers();
+    void refreshRemoteRecipes();
   }
 }
 
 export function useRecipes() {
   const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>(sharedCustomRecipes);
+  const [remoteRecipes, setRemoteRecipes] = useState<Recipe[]>(sharedRemoteRecipes);
+  const [source, setSource] = useState<RecipesSource>(sharedSource);
+  const [lastRemoteSyncAt, setLastRemoteSyncAt] = useState<string | null>(sharedLastRemoteSyncAt);
   const [isLoading, setIsLoading] = useState<boolean>(!sharedHasInitialized || sharedIsLoading);
   const [error, setError] = useState<string | null>(sharedError);
 
   useEffect(() => {
     const listener = () => {
       setCustomRecipes(sharedCustomRecipes);
+      setRemoteRecipes(sharedRemoteRecipes);
+      setSource(sharedSource);
+      setLastRemoteSyncAt(sharedLastRemoteSyncAt);
       setIsLoading(!sharedHasInitialized || sharedIsLoading);
       setError(sharedError);
     };
@@ -95,8 +171,8 @@ export function useRecipes() {
   }, []);
 
   const recipes = useMemo<Recipe[]>(() => {
-    return mergeImportedAndCustomRecipes(importedCocktailRecipes, customRecipes);
-  }, [customRecipes]);
+    return buildRecipesCatalog(importedCocktailRecipes, remoteRecipes, customRecipes);
+  }, [customRecipes, remoteRecipes]);
 
   const addCustomRecipe = (recipe: Omit<CustomRecipe, 'id' | 'createdAt' | 'isCustom'>) => {
     const newRecipe: CustomRecipe = {
@@ -133,6 +209,10 @@ export function useRecipes() {
     }
   };
 
+  const refreshRecipes = async () => {
+    await refreshRemoteRecipes();
+  };
+
   return {
     recipes,
     customRecipes,
@@ -140,5 +220,8 @@ export function useRecipes() {
     deleteCustomRecipe,
     isLoading,
     error,
+    source,
+    refreshRecipes,
+    lastRemoteSyncAt,
   };
 }

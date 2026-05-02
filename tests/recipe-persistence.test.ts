@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { mergeImportedAndCustomRecipes, parseCustomRecipes } from '../app/hooks/recipe-persistence';
+import {
+  buildRecipesCatalog,
+  mergeImportedAndCustomRecipes,
+  parseCustomRecipes,
+  resolveRecipesSource,
+} from '../app/hooks/recipe-persistence';
 import type { CustomRecipe, Recipe } from '../app/types/database';
 
 const builtInRecipe: Recipe = {
@@ -67,4 +72,50 @@ test('mergeImportedAndCustomRecipes ignores custom recipes colliding with built-
   assert.equal(merged[0]?.id, 'builtin-1');
   assert.equal(merged[0]?.name, 'Built-in');
   assert.equal(merged[1]?.id, 'custom-1');
+});
+
+test('buildRecipesCatalog falls back to bundled core when no remote recipes are available', () => {
+  const catalog = buildRecipesCatalog([builtInRecipe], [], []);
+
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0]?.id, 'builtin-1');
+  assert.equal(resolveRecipesSource([], false), 'bundled');
+});
+
+test('buildRecipesCatalog adds dynamic remote recipes in addition to bundled core', () => {
+  const remoteRecipe: Recipe = {
+    ...builtInRecipe,
+    id: 'remote-1',
+    name: 'Remote recipe',
+  };
+
+  const catalog = buildRecipesCatalog([builtInRecipe], [remoteRecipe], []);
+
+  assert.equal(catalog.length, 2);
+  assert.equal(catalog[0]?.id, 'builtin-1');
+  assert.equal(catalog[1]?.id, 'remote-1');
+});
+
+test('buildRecipesCatalog keeps bundled core priority when remote id collides', () => {
+  const remoteCollision: Recipe = {
+    ...builtInRecipe,
+    name: 'Remote should not override core',
+  };
+
+  const catalog = buildRecipesCatalog([builtInRecipe], [remoteCollision], []);
+
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0]?.id, 'builtin-1');
+  assert.equal(catalog[0]?.name, 'Built-in');
+});
+
+test('resolveRecipesSource falls back to cache when fetch fails but cache exists', () => {
+  const cachedRemote: Recipe = {
+    ...builtInRecipe,
+    id: 'remote-cached',
+    name: 'Cached remote',
+  };
+
+  assert.equal(resolveRecipesSource([cachedRemote], false), 'cache');
+  assert.equal(resolveRecipesSource([cachedRemote], true), 'remote');
 });
