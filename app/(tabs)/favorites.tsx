@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { withHaptics } from '@/app/utils/press-feedback';
@@ -9,6 +9,8 @@ import { useFavorites } from '@/app/hooks/use-favorites';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
+import { useMachine } from '@/app/machine/machine-context';
+import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe } from '@/app/types/database';
 
 function FavoriteCard({
@@ -24,6 +26,11 @@ function FavoriteCard({
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
   onToggleFavorite: (id: string) => void;
 }) {
+  const { selectedMachineId } = useMachine();
+  const scaledProportions = scaleRecipeProportions(recipe, selectedMachineId);
+  const machineProfile = recipe.machineProfiles?.[selectedMachineId];
+  const recipeImage = recipe.media?.image;
+  const hasImage = Boolean(recipeImage);
   const localizedName = getLocalizedRecipeText(recipe, language, 'name');
   const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
 
@@ -38,8 +45,7 @@ function FavoriteCard({
       ]}
       onPress={withHaptics(() => router.push(`/recipe/${recipe.id}`))}
     >
-      <View style={styles.cardHeaderRow}>
-        <ThemedText style={styles.emoji}>{recipe.emoji}</ThemedText>
+      <View style={styles.cardContent}>
         <Pressable
           onPress={(event) => {
             event.stopPropagation();
@@ -50,13 +56,48 @@ function FavoriteCard({
         >
           <FontAwesome name="star" size={22} color={colors.primary} />
         </Pressable>
+
+        <View style={styles.cardLayout}>
+          <View
+            style={[
+              styles.visualWrap,
+              {
+                backgroundColor: hasImage ? colors.surfaceSoft : resolvedTheme === 'dark' ? '#2E2446' : '#F5F3FF',
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            {recipeImage ? (
+              <Image source={recipeImage} style={styles.cardThumbnail} resizeMode="cover" />
+            ) : (
+              <ThemedText style={styles.visualFallback}>{recipe.emoji}</ThemedText>
+            )}
+          </View>
+
+          <View style={styles.cardMainContent}>
+            <ThemedText type="subtitle" style={styles.recipeName} numberOfLines={2}>
+              {localizedName}
+            </ThemedText>
+            <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
+              {localizedDescription}
+            </ThemedText>
+
+            <View style={styles.metaStack}>
+              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
+              </ThemedText>
+              <View style={styles.metaRowCompact}>
+                <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
+                  {machineProfile ? `📦 ${machineProfile.fillVolumeMl} ml` : `💧 ${scaledProportions.water}`}
+                </ThemedText>
+                <ThemedText style={[styles.metaLine, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]} numberOfLines={1}>
+                  ⏱️ {recipe.time.total}
+                </ThemedText>
+              </View>
+            </View>
+          </View>
+        </View>
       </View>
-      <ThemedText type="subtitle" style={styles.recipeName}>
-        {localizedName}
-      </ThemedText>
-      <ThemedText style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
-        {localizedDescription}
-      </ThemedText>
     </Pressable>
   );
 }
@@ -130,7 +171,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     marginBottom: 12,
-    padding: 20,
+    padding: 16,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -142,16 +183,30 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
     shadowOpacity: 0.2,
   },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  cardContent: { gap: 10 },
+  cardLayout: { flexDirection: 'row', gap: 12, alignItems: 'stretch' },
+  visualWrap: {
+    width: 92,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  cardThumbnail: { width: '100%', height: '100%' },
+  visualFallback: { fontSize: 32 },
+  cardMainContent: { flex: 1, justifyContent: 'space-between', minHeight: 92 },
+  metaStack: { marginTop: 8, gap: 4 },
+  metaRowCompact: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  metaLine: { fontSize: 12, lineHeight: 16, fontWeight: '600', flexShrink: 1 },
   favoriteButton: {
-    paddingTop: 4,
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    zIndex: 2,
+    padding: 4,
   },
-  emoji: { fontSize: 40, marginBottom: 8 },
-  recipeName: { marginBottom: 4 },
+  recipeName: { marginBottom: 4, paddingRight: 30 },
   description: { fontSize: 14, lineHeight: 20 },
   emptyContainer: {
     flex: 1,
