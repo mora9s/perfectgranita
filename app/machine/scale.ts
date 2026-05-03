@@ -20,7 +20,11 @@ function formatScaledNumber(original: string, scaled: number): string {
   return Number(scaled.toFixed(1)).toString().replace('.', ',');
 }
 
-export function scaleQuantityString(input: string, machineId: MachineId): string {
+export function scaleQuantityString(input: string | undefined | null, machineId: MachineId): string {
+  if (typeof input !== 'string') {
+    return '—';
+  }
+
   if (!input.trim()) {
     return input;
   }
@@ -38,9 +42,11 @@ export function scaleQuantityString(input: string, machineId: MachineId): string
 }
 
 export function scaleRecipeProportions(recipe: Recipe, machineId: MachineId): Recipe['proportions'] {
+  const proportions = recipe.proportions ?? { water: '—', sugar: '—', flavor: '—' };
+
   return {
-    water: scaleQuantityString(recipe.proportions.water, machineId),
-    sugar: scaleQuantityString(recipe.proportions.sugar, machineId),
-    flavor: scaleQuantityString(recipe.proportions.flavor, machineId),
+    water: scaleQuantityString(proportions.water, machineId),
+    sugar: scaleQuantityString(proportions.sugar, machineId),
+    flavor: scaleQuantityString(proportions.flavor, machineId),
   };
 }

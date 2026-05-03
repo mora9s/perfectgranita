@@ -1,18 +1,19 @@
 import { FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { getMarkedPressStyle, withHaptics } from '@/app/utils/press-feedback';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useRecipes } from '@/app/hooks/use-recipes';
 import { useFavorites } from '@/app/hooks/use-favorites';
+import { useRecipeRatings } from '@/app/hooks/use-recipe-ratings';
 import { MACHINE_OPTIONS } from '@/app/machine/config';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useMachine } from '@/app/machine/machine-context';
 import { useTheme } from '@/app/theme/theme-context';
-import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe, RecipeAlcoholCategory } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
 
@@ -28,6 +29,8 @@ interface RecipeCardProps {
   resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme'];
   isFavorite: boolean;
   onToggleFavorite: (recipeId: string) => void;
+  avgRating: number;
+  votesCount: number;
 }
 
 function RecipeCard({
@@ -38,9 +41,9 @@ function RecipeCard({
   resolvedTheme,
   isFavorite,
   onToggleFavorite,
+  avgRating,
+  votesCount,
 }: RecipeCardProps) {
-  const scaledProportions = scaleRecipeProportions(recipe, machineId);
-  const machineProfile = recipe.machineProfiles?.[machineId];
   const recipeImage = recipe.media?.image;
   const hasImage = Boolean(recipeImage);
   const localizedName = getLocalizedRecipeText(recipe, language, 'name');
@@ -97,19 +100,13 @@ function RecipeCard({
               {localizedDescription}
             </ThemedText>
 
-            <View style={styles.metaStack}>
-              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
-                ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
-              </ThemedText>
-              <View style={styles.metaRowCompact}>
+            {votesCount > 0 ? (
+              <View style={styles.metaStack}>
                 <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
-                  {machineProfile ? `📦 ${machineProfile.fillVolumeMl} ml` : `💧 ${scaledProportions.water}`}
-                </ThemedText>
-                <ThemedText style={[styles.metaLine, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]} numberOfLines={1}>
-                  ⏱️ {recipe.time.total}
+                  ⭐ {avgRating.toFixed(1)} ({votesCount})
                 </ThemedText>
               </View>
-            </View>
+            ) : null}
           </View>
         </View>
       </View>
@@ -196,6 +193,14 @@ export default function ExploreScreen() {
     });
   }, [activeDrinkType, activeAlcohol, activeMonin, recipes]);
 
+  const { getRecipeStats, refreshRatings } = useRecipeRatings(filteredRecipes.map((recipe) => recipe.id));
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshRatings();
+    }, [refreshRatings])
+  );
+
   const filtersActive = activeDrinkType !== 'all' || activeAlcohol !== 'all' || activeMonin !== 'all';
 
   const activeFilterLabels = useMemo(() => {
@@ -246,7 +251,7 @@ export default function ExploreScreen() {
     setIsFilterModalOpen(true);
   };
 
-  const showMachineSwitcher = machinePreferenceMode === 'both';
+  const showMachineSwitcher = false;
 
   return (
     <ThemedView style={styles.container}>
@@ -525,17 +530,22 @@ export default function ExploreScreen() {
       <FlatList
         data={filteredRecipes}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <RecipeCard
-            recipe={item}
-            machineId={selectedMachineId}
-            language={language}
-            colors={colors}
-            resolvedTheme={resolvedTheme}
-            isFavorite={favoriteRecipeIdSet.has(item.id)}
-            onToggleFavorite={toggleFavorite}
-          />
-        )}
+        renderItem={({ item }) => {
+          const stats = getRecipeStats(item.id);
+          return (
+            <RecipeCard
+              recipe={item}
+              machineId={selectedMachineId}
+              language={language}
+              colors={colors}
+              resolvedTheme={resolvedTheme}
+              isFavorite={favoriteRecipeIdSet.has(item.id)}
+              onToggleFavorite={toggleFavorite}
+              avgRating={stats.avgRating}
+              votesCount={stats.votesCount}
+            />
+          );
+        }}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
