@@ -174,6 +174,10 @@ export function useRecipes() {
     return buildRecipesCatalog(importedCocktailRecipes, remoteRecipes, customRecipes);
   }, [customRecipes, remoteRecipes]);
 
+  const remoteRecipeIdSet = useMemo(() => {
+    return new Set(remoteRecipes.map((recipe) => recipe.id));
+  }, [remoteRecipes]);
+
   const addCustomRecipe = (recipe: Omit<CustomRecipe, 'id' | 'createdAt' | 'isCustom'>) => {
     const newRecipe: CustomRecipe = {
       ...recipe,
@@ -216,6 +220,7 @@ export function useRecipes() {
   return {
     recipes,
     customRecipes,
+    remoteRecipeIdSet,
     addCustomRecipe,
     deleteCustomRecipe,
     isLoading,

@@ -128,7 +128,7 @@ function getDrinkType(recipe: Recipe): DrinkTypeFilter {
 }
 
 export default function ExploreScreen() {
-  const { recipes } = useRecipes();
+  const { recipes, remoteRecipeIdSet } = useRecipes();
   const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
   const { machinePreferenceMode, selectedMachine, selectedMachineId, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
@@ -193,7 +193,12 @@ export default function ExploreScreen() {
     });
   }, [activeDrinkType, activeAlcohol, activeMonin, recipes]);
 
-  const { getRecipeStats, refreshRatings } = useRecipeRatings(filteredRecipes.map((recipe) => recipe.id));
+  const { getRecipeStats, refreshRatings } = useRecipeRatings(
+    filteredRecipes.map((recipe) => ({
+      recipeId: recipe.id,
+      scope: remoteRecipeIdSet.has(recipe.id) ? 'remote' : 'local',
+    }))
+  );
 
   useFocusEffect(
     useCallback(() => {

@@ -311,7 +311,7 @@ function RecipeDetail({
 }
 
 export default function RecipeScreen() {
-  const { recipes, isLoading } = useRecipes();
+  const { recipes, remoteRecipeIdSet, isLoading } = useRecipes();
   const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
   const { machinePreferenceMode, selectedMachineId, selectedMachine, setSelectedMachineId } = useMachine();
   const { colors, resolvedTheme } = useTheme();
@@ -320,7 +320,16 @@ export default function RecipeScreen() {
 
   const recipe = recipes.find((r) => r.id === id);
   const isFavorite = recipe ? favoriteRecipeIdSet.has(recipe.id) : false;
-  const { getRecipeStats, getUserRating, rateRecipe } = useRecipeRatings(recipe ? [recipe.id] : []);
+  const { getRecipeStats, getUserRating, rateRecipe } = useRecipeRatings(
+    recipe
+      ? [
+          {
+            recipeId: recipe.id,
+            scope: remoteRecipeIdSet.has(recipe.id) ? 'remote' : 'local',
+          },
+        ]
+      : []
+  );
 
   if (!recipe && isLoading) {
     return (

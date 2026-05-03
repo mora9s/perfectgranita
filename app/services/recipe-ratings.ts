@@ -5,15 +5,23 @@ const RATER_KEY_FILE = 'rating-rater-key-v1.txt';
 const storageDirectory = FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
 const storagePath = storageDirectory ? `${storageDirectory}${RATER_KEY_FILE}` : null;
 
+export type RecipeRatingScope = 'local' | 'remote';
+
+export type RecipeRatingTarget = {
+  scope: RecipeRatingScope;
+  recipeId: string;
+};
+
 export type RecipeRatingStats = {
   recipeId: string;
+  scope: RecipeRatingScope;
   avgRating: number;
   votesCount: number;
 };
 
 export type RatingsSnapshot = {
-  statsByRecipeId: Record<string, RecipeRatingStats>;
-  userRatingsByRecipeId: Record<string, number>;
+  statsByScopedRecipeKey: Record<string, RecipeRatingStats>;
+  userRatingsByScopedRecipeKey: Record<string, number>;
 };
 
 function normalizeRating(value: unknown): number | null {
@@ -67,23 +75,49 @@ export async function getOrCreateRaterKey(): Promise<string> {
   return created;
 }
 
-export async function fetchRatingsSnapshot(recipeIds: string[], raterKey: string): Promise<RatingsSnapshot> {
-  if (!isSupabaseConfigured || !supabase || recipeIds.length === 0) {
-    return { statsByRecipeId: {}, userRatingsByRecipeId: {} };
+function toScopedKey(scope: RecipeRatingScope, recipeId: string): string {
+  return `${scope}:${recipeId}`;
+}
+
+export async function fetchRatingsSnapshot(targets: RecipeRatingTarget[], raterKey: string): Promise<RatingsSnapshot> {
+  if (!isSupabaseConfigured || !supabase || targets.length === 0) {
+    return { statsByScopedRecipeKey: {}, userRatingsByScopedRecipeKey: {} };
   }
 
-  const uniqueIds = Array.from(new Set(recipeIds));
+  const uniqueTargets = Array.from(new Set(targets.map((target) => toScopedKey(target.scope, target.recipeId))))
+    .map((key) => {
+      const [scope, ...parts] = key.split(':');
+      const recipeId = parts.join(':');
+      if ((scope !== 'local' && scope !== 'remote') || !recipeId) {
+        return null;
+      }
+      return { scope, recipeId } as RecipeRatingTarget;
+    })
+    .filter((target): target is RecipeRatingTarget => Boolean(target));
+
+  const remoteRecipeIds = uniqueTargets.filter((target) => target.scope === 'remote').map((target) => target.recipeId);
+  const localRecipeIds = uniqueTargets.filter((target) => target.scope === 'local').map((target) => target.recipeId);
+
+  const baseStatsQuery = supabase.from('recipe_rating_stats').select('scope, recipe_key, avg_rating, votes_count');
+  const statsQuery = remoteRecipeIds.length > 0 && localRecipeIds.length > 0
+    ? baseStatsQuery.or(`and(scope.eq.remote,recipe_key.in.(${remoteRecipeIds.join(',')})),and(scope.eq.local,recipe_key.in.(${localRecipeIds.join(',')}))`)
+    : remoteRecipeIds.length > 0
+      ? baseStatsQuery.eq('scope', 'remote').in('recipe_key', remoteRecipeIds)
+      : baseStatsQuery.eq('scope', 'local').in('recipe_key', localRecipeIds);
+
+  const baseUserQuery = supabase
+    .from('recipe_ratings')
+    .select('scope, recipe_key, rating')
+    .eq('rater_key', raterKey);
+  const userQuery = remoteRecipeIds.length > 0 && localRecipeIds.length > 0
+    ? baseUserQuery.or(`and(scope.eq.remote,recipe_key.in.(${remoteRecipeIds.join(',')})),and(scope.eq.local,recipe_key.in.(${localRecipeIds.join(',')}))`)
+    : remoteRecipeIds.length > 0
+      ? baseUserQuery.eq('scope', 'remote').in('recipe_key', remoteRecipeIds)
+      : baseUserQuery.eq('scope', 'local').in('recipe_key', localRecipeIds);
 
   const [{ data: statsRows, error: statsError }, { data: userRows, error: userError }] = await Promise.all([
-    supabase
-      .from('recipe_rating_stats')
-      .select('recipe_id, avg_rating, votes_count')
-      .in('recipe_id', uniqueIds),
-    supabase
-      .from('recipe_ratings')
-      .select('recipe_id, rating')
-      .eq('rater_key', raterKey)
-      .in('recipe_id', uniqueIds),
+    statsQuery,
+    userQuery,
   ]);
 
   if (statsError) {
@@ -93,37 +127,40 @@ export async function fetchRatingsSnapshot(recipeIds: string[], raterKey: string
     throw userError;
   }
 
-  const statsByRecipeId: Record<string, RecipeRatingStats> = {};
+  const statsByScopedRecipeKey: Record<string, RecipeRatingStats> = {};
   for (const row of statsRows ?? []) {
-    const recipeId = typeof row.recipe_id === 'string' ? row.recipe_id : '';
+    const scope = row.scope === 'local' || row.scope === 'remote' ? row.scope : null;
+    const recipeId = typeof row.recipe_key === 'string' ? row.recipe_key : '';
     const avgRating = normalizeRating(row.avg_rating);
     const votesCount = typeof row.votes_count === 'number' ? row.votes_count : 0;
 
-    if (!recipeId || avgRating === null) {
+    if (!scope || !recipeId || avgRating === null) {
       continue;
     }
 
-    statsByRecipeId[recipeId] = {
+    statsByScopedRecipeKey[toScopedKey(scope, recipeId)] = {
       recipeId,
+      scope,
       avgRating,
       votesCount,
     };
   }
 
-  const userRatingsByRecipeId: Record<string, number> = {};
+  const userRatingsByScopedRecipeKey: Record<string, number> = {};
   for (const row of userRows ?? []) {
-    const recipeId = typeof row.recipe_id === 'string' ? row.recipe_id : '';
+    const scope = row.scope === 'local' || row.scope === 'remote' ? row.scope : null;
+    const recipeId = typeof row.recipe_key === 'string' ? row.recipe_key : '';
     const rating = normalizeRating(row.rating);
-    if (!recipeId || rating === null) {
+    if (!scope || !recipeId || rating === null) {
       continue;
     }
-    userRatingsByRecipeId[recipeId] = Math.round(rating);
+    userRatingsByScopedRecipeKey[toScopedKey(scope, recipeId)] = Math.round(rating);
   }
 
-  return { statsByRecipeId, userRatingsByRecipeId };
+  return { statsByScopedRecipeKey, userRatingsByScopedRecipeKey };
 }
 
-export async function upsertRecipeRating(recipeId: string, rating: number, raterKey: string): Promise<void> {
+export async function upsertRecipeRating(target: RecipeRatingTarget, rating: number, raterKey: string): Promise<void> {
   if (!isSupabaseConfigured || !supabase) {
     return;
   }
@@ -132,12 +169,13 @@ export async function upsertRecipeRating(recipeId: string, rating: number, rater
 
   const { error } = await supabase.from('recipe_ratings').upsert(
     {
-      recipe_id: recipeId,
+      scope: target.scope,
+      recipe_key: target.recipeId,
       rater_key: raterKey,
       rating: safeRating,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: 'recipe_id,rater_key' }
+    { onConflict: 'scope,recipe_key,rater_key' }
   );
 
   if (error) {

@@ -99,13 +99,18 @@ function FavoriteCard({
 }
 
 export default function FavoritesScreen() {
-  const { recipes } = useRecipes();
+  const { recipes, remoteRecipeIdSet } = useRecipes();
   const { favoriteRecipeIdSet, toggleFavorite } = useFavorites();
   const { colors, resolvedTheme } = useTheme();
   const { t, language } = useLanguage();
 
   const favoriteRecipes = recipes.filter((recipe) => favoriteRecipeIdSet.has(recipe.id));
-  const { getRecipeStats, refreshRatings } = useRecipeRatings(favoriteRecipes.map((recipe) => recipe.id));
+  const { getRecipeStats, refreshRatings } = useRecipeRatings(
+    favoriteRecipes.map((recipe) => ({
+      recipeId: recipe.id,
+      scope: remoteRecipeIdSet.has(recipe.id) ? 'remote' : 'local',
+    }))
+  );
 
   useFocusEffect(
     useCallback(() => {
