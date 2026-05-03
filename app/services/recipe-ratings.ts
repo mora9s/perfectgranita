@@ -169,6 +169,9 @@ export async function upsertRecipeRating(target: RecipeRatingTarget, rating: num
 
   const { error } = await supabase.from('recipe_ratings').upsert(
     {
+      // Legacy compatibility: 0002 had recipe_id NOT NULL.
+      // Keep writing it until all environments applied the nullable migration.
+      recipe_id: target.recipeId,
       scope: target.scope,
       recipe_key: target.recipeId,
       rater_key: raterKey,
