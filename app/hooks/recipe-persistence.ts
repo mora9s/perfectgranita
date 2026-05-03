@@ -10,6 +10,39 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(isString);
 }
 
+function normalizeStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isString);
+}
+
+function normalizeRecipeShape(recipe: Recipe): Recipe {
+  const fallbackTime = {
+    prep: '—',
+    freezing: '—',
+    total: '—',
+  };
+
+  const normalizedTime = recipe.time && typeof recipe.time === 'object'
+    ? {
+        prep: isString((recipe.time as Record<string, unknown>).prep) ? (recipe.time as Record<string, string>).prep : fallbackTime.prep,
+        freezing: isString((recipe.time as Record<string, unknown>).freezing) ? (recipe.time as Record<string, string>).freezing : fallbackTime.freezing,
+        total: isString((recipe.time as Record<string, unknown>).total) ? (recipe.time as Record<string, string>).total : fallbackTime.total,
+      }
+    : fallbackTime;
+
+  return {
+    ...recipe,
+    ingredients: normalizeStringList(recipe.ingredients),
+    instructions: normalizeStringList(recipe.instructions),
+    tips: normalizeStringList(recipe.tips),
+    notes: normalizeStringList(recipe.notes),
+    time: normalizedTime,
+  };
+}
+
 function isValidCustomRecipe(value: unknown): value is CustomRecipe {
   if (!value || typeof value !== 'object') {
     return false;
@@ -105,7 +138,7 @@ export function buildRecipesCatalog(
   customRecipes: CustomRecipe[],
 ): Recipe[] {
   const mergedCoreAndRemote = mergeCoreAndRemoteRecipes(coreRecipes, remoteRecipes);
-  return mergeImportedAndCustomRecipes(mergedCoreAndRemote, customRecipes);
+  return mergeImportedAndCustomRecipes(mergedCoreAndRemote, customRecipes).map(normalizeRecipeShape);
 }
 
 export function resolveRecipesSource(remoteRecipes: Recipe[], hasRemoteFetchSucceeded: boolean): RecipesSource {

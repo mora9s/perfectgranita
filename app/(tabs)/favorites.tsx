@@ -1,6 +1,8 @@
 import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
+import { useCallback } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { withHaptics } from '@/app/utils/press-feedback';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -10,8 +12,6 @@ import { useRecipeRatings } from '@/app/hooks/use-recipe-ratings';
 import { useLanguage } from '@/app/language/language-context';
 import { getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
-import { useMachine } from '@/app/machine/machine-context';
-import { scaleRecipeProportions } from '@/app/machine/scale';
 import type { Recipe } from '@/app/types/database';
 
 function FavoriteCard({
@@ -31,9 +31,6 @@ function FavoriteCard({
   avgRating: number;
   votesCount: number;
 }) {
-  const { selectedMachineId } = useMachine();
-  const scaledProportions = scaleRecipeProportions(recipe, selectedMachineId);
-  const machineProfile = recipe.machineProfiles?.[selectedMachineId];
   const recipeImage = recipe.media?.image;
   const hasImage = Boolean(recipeImage);
   const localizedName = getLocalizedRecipeText(recipe, language, 'name');
@@ -87,22 +84,13 @@ function FavoriteCard({
               {localizedDescription}
             </ThemedText>
 
-            <View style={styles.metaStack}>
-              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
-                ⭐ {avgRating > 0 ? avgRating.toFixed(1) : '—'} ({votesCount})
-              </ThemedText>
-              <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
-                ⚙️ {machineProfile ? machineProfile.machineProgram : scaledProportions.flavor}
-              </ThemedText>
-              <View style={styles.metaRowCompact}>
+            {votesCount > 0 ? (
+              <View style={styles.metaStack}>
                 <ThemedText style={[styles.metaLine, { color: colors.textMuted }]} numberOfLines={1}>
-                  {machineProfile ? `📦 ${machineProfile.fillVolumeMl} ml` : `💧 ${scaledProportions.water}`}
-                </ThemedText>
-                <ThemedText style={[styles.metaLine, { color: resolvedTheme === 'dark' ? '#C4B5FD' : colors.primary }]} numberOfLines={1}>
-                  ⏱️ {recipe.time.total}
+                  ⭐ {avgRating.toFixed(1)} ({votesCount})
                 </ThemedText>
               </View>
-            </View>
+            ) : null}
           </View>
         </View>
       </View>
@@ -117,7 +105,13 @@ export default function FavoritesScreen() {
   const { t, language } = useLanguage();
 
   const favoriteRecipes = recipes.filter((recipe) => favoriteRecipeIdSet.has(recipe.id));
-  const { getRecipeStats } = useRecipeRatings(favoriteRecipes.map((recipe) => recipe.id));
+  const { getRecipeStats, refreshRatings } = useRecipeRatings(favoriteRecipes.map((recipe) => recipe.id));
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshRatings();
+    }, [refreshRatings])
+  );
 
   return (
     <ThemedView style={styles.container}>

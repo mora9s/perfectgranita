@@ -17,15 +17,23 @@ export function useRecipeRatings(recipeIds: string[]) {
   const [statsByRecipeId, setStatsByRecipeId] = useState<Record<string, RecipeRatingStats>>({});
   const [userRatingsByRecipeId, setUserRatingsByRecipeId] = useState<Record<string, number>>({});
 
-  const stableRecipeIds = useMemo(() => Array.from(new Set(recipeIds)).filter(Boolean).sort(), [recipeIds]);
+  const stableRecipeIds = useMemo(() => {
+    return Array.from(new Set(recipeIds)).filter(Boolean).sort();
+  }, [recipeIds.join('|')]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrap() {
-      const key = await getOrCreateRaterKey();
-      if (!cancelled) {
-        setRaterKey(key);
+      try {
+        const key = await getOrCreateRaterKey();
+        if (!cancelled) {
+          setRaterKey(key);
+        }
+      } catch {
+        if (!cancelled) {
+          setRaterKey(null);
+        }
       }
     }
 
@@ -43,9 +51,14 @@ export function useRecipeRatings(recipeIds: string[]) {
       return;
     }
 
-    const snapshot = await fetchRatingsSnapshot(stableRecipeIds, raterKey);
-    setStatsByRecipeId(snapshot.statsByRecipeId);
-    setUserRatingsByRecipeId(snapshot.userRatingsByRecipeId);
+    try {
+      const snapshot = await fetchRatingsSnapshot(stableRecipeIds, raterKey);
+      setStatsByRecipeId(snapshot.statsByRecipeId);
+      setUserRatingsByRecipeId(snapshot.userRatingsByRecipeId);
+    } catch {
+      setStatsByRecipeId({});
+      setUserRatingsByRecipeId({});
+    }
   }, [raterKey, stableRecipeIds]);
 
   useEffect(() => {
@@ -62,8 +75,12 @@ export function useRecipeRatings(recipeIds: string[]) {
 
       setUserRatingsByRecipeId((prev) => ({ ...prev, [recipeId]: safeRating }));
 
-      await upsertRecipeRating(recipeId, safeRating, raterKey);
-      await refresh();
+      try {
+        await upsertRecipeRating(recipeId, safeRating, raterKey);
+        await refresh();
+      } catch {
+        await refresh();
+      }
     },
     [raterKey, refresh]
   );
