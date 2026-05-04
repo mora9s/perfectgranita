@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { withHaptics, getMarkedPressStyle } from '@/app/utils/press-feedback';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -62,6 +62,7 @@ function MachineIllustration({ machineId, isDark }: { machineId: MachineId; isDa
 export default function IndexScreen() {
   const { setSelectedMachineId, isMachineAllowed } = useMachine();
   const { colors, resolvedTheme } = useTheme();
+  const { height } = useWindowDimensions();
   const { t } = useLanguage();
 
   const modelMeta: Record<MachineId, MachineModelBadge> = {
@@ -79,6 +80,8 @@ export default function IndexScreen() {
   };
 
   const isDark = resolvedTheme === 'dark';
+  const isCompactHeight = height < 760;
+  const isTallHeight = height > 900;
 
   const handleMachineSelect = (machineId: MachineId) => {
     setSelectedMachineId(machineId);
@@ -86,8 +89,17 @@ export default function IndexScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
+      <ThemedView
+        style={[
+          styles.container,
+          isCompactHeight ? styles.containerCompact : isTallHeight ? styles.containerTall : null,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <View
           style={[
             styles.hero,
@@ -126,6 +138,7 @@ export default function IndexScreen() {
           <View
             style={[
               styles.heroImageWrap,
+              isCompactHeight ? styles.heroImageWrapCompact : isTallHeight ? styles.heroImageWrapTall : null,
               {
                 backgroundColor: isDark ? 'rgba(11, 18, 36, 0.32)' : 'rgba(255, 255, 255, 0.22)',
               },
@@ -133,7 +146,11 @@ export default function IndexScreen() {
           >
             <Image
               source={isDark ? require('@/assets/images/hero-dark.jpg') : require('@/assets/images/hero-light.jpg')}
-              style={[styles.heroImage, isDark && { opacity: 0.78 }]}
+              style={[
+                styles.heroImage,
+                isCompactHeight ? styles.heroImageCompact : isTallHeight ? styles.heroImageTall : null,
+                isDark && { opacity: 0.78 },
+              ]}
               resizeMode="cover"
             />
             <View
@@ -171,7 +188,12 @@ export default function IndexScreen() {
           </View>
         </View>
 
-        <View style={styles.content}>
+        <View
+          style={[
+            styles.content,
+            isCompactHeight ? styles.contentCompact : isTallHeight ? styles.contentTall : null,
+          ]}
+        >
           {MACHINE_OPTIONS.map((machine) => {
             const isAllowed = isMachineAllowed(machine.id);
             const meta = modelMeta[machine.id];
@@ -291,6 +313,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 8,
+    paddingBottom: 8,
+  },
+  containerCompact: {
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+  containerTall: {
     paddingBottom: 12,
   },
   hero: {
@@ -346,23 +375,41 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   heroImageWrap: {
-    width: 96,
-    height: 116,
-    borderRadius: 16,
+    width: 88,
+    height: 100,
+    borderRadius: 14,
     borderWidth: 0,
     borderColor: 'transparent',
     overflow: 'hidden',
     backgroundColor: 'transparent',
     zIndex: 1,
-    marginVertical: -2,
+    marginVertical: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heroImage: {
+  heroImageWrapCompact: {
+    width: 78,
+    height: 90,
+    borderRadius: 12,
+  },
+  heroImageWrapTall: {
     width: 92,
-    height: 92,
-    borderRadius: 14,
+    height: 104,
+  },
+  heroImage: {
+    width: 82,
+    height: 82,
+    borderRadius: 12,
     opacity: 0.9,
+  },
+  heroImageCompact: {
+    width: 72,
+    height: 72,
+    borderRadius: 10,
+  },
+  heroImageTall: {
+    width: 86,
+    height: 86,
   },
   heroImageTopFade: {
     position: 'absolute',
@@ -394,10 +441,20 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
   content: {
+    flex: 1,
     paddingHorizontal: 14,
     gap: 12,
     flexDirection: 'column',
     alignItems: 'stretch',
+    justifyContent: 'space-evenly',
+  },
+  contentCompact: {
+    gap: 10,
+    justifyContent: 'flex-start',
+  },
+  contentTall: {
+    justifyContent: 'space-evenly',
+    paddingBottom: 4,
   },
   machineCard: {
     borderRadius: 22,
