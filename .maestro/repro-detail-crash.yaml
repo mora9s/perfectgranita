@@ -1,0 +1,10 @@
+appId: host.exp.exponent
+---
+- launchApp
+- assertVisible: "Accueil"
+- tapOn: "Explorer"
+- assertVisible: "Explorer"
+- tapOn: "Margarita"
+- extendedWaitUntil:
+    visible: "Ingrédients"
+    timeout: 10000

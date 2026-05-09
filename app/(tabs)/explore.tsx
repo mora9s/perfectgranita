@@ -44,8 +44,8 @@ function RecipeCard({
   avgRating,
   votesCount,
 }: RecipeCardProps) {
-  const recipeImage = recipe.media?.image;
-  const hasImage = Boolean(recipeImage);
+  const recipeImageSource = recipe.media?.image ?? (recipe.media?.imageUrl ? { uri: recipe.media.imageUrl } : undefined);
+  const hasImage = Boolean(recipeImageSource);
   const localizedName = getLocalizedRecipeText(recipe, language, 'name');
   const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
 
@@ -85,8 +85,8 @@ function RecipeCard({
               },
             ]}
           >
-            {recipeImage ? (
-              <Image source={recipeImage} style={styles.cardThumbnail} resizeMode="cover" />
+            {recipeImageSource ? (
+              <Image source={recipeImageSource} style={styles.cardThumbnail} resizeMode="cover" />
             ) : (
               <ThemedText style={styles.visualFallback}>{recipe.emoji}</ThemedText>
             )}

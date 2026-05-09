@@ -9,7 +9,7 @@ export async function fetchPublishedRemoteRecipes(): Promise<Recipe[]> {
 
   const { data, error } = await supabase
     .from('recipes')
-    .select('id, slug, status, sort_order, recipe, created_at, updated_at')
+    .select('slug, sort_order, updated_at, name_fr, name_en, description_fr, description_en, drink_category, alcohol_category, uses_monin, recipe_payload')
     .eq('status', 'published')
     .order('sort_order', { ascending: true })
     .order('updated_at', { ascending: false });

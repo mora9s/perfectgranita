@@ -11,7 +11,6 @@ import { useLanguage } from '@/app/language/language-context';
 import { useMachine } from '@/app/machine/machine-context';
 import { getLocalizedRecipeDrinkVisual, getLocalizedRecipeText } from '@/app/recipes/localization';
 import { useTheme } from '@/app/theme/theme-context';
-import { scaleRecipeProportions } from '@/app/machine/scale';
 import { withHaptics } from '@/app/utils/press-feedback';
 import type { Recipe, RecipeIngredient } from '@/app/types/database';
 import type { MachineId } from '@/app/types/machine';
@@ -19,8 +18,6 @@ import type { MachineId } from '@/app/types/machine';
 interface RecipeDetailProps {
   recipe: Recipe;
   machineId: MachineId;
-  selectedMachineName: string;
-  selectedMachineCapacityLiters: number;
   showMachineSwitcher: boolean;
   onMachineSelect: (machineId: MachineId) => void;
   colors: ReturnType<typeof useTheme>['colors'];
@@ -35,8 +32,6 @@ interface RecipeDetailProps {
 function RecipeDetail({
   recipe,
   machineId,
-  selectedMachineName,
-  selectedMachineCapacityLiters,
   showMachineSwitcher,
   onMachineSelect,
   colors,
@@ -49,7 +44,6 @@ function RecipeDetail({
 }: RecipeDetailProps) {
   const { t } = useLanguage();
   const machineProfile = recipe.machineProfiles?.[machineId];
-  const scaledProportions = scaleRecipeProportions(recipe, machineId);
   const baseIngredientRows: RecipeIngredient[] =
     recipe.ingredientItems ?? recipe.ingredients.map((entry) => ({ quantity: '', item: entry }));
 
@@ -67,12 +61,7 @@ function RecipeDetail({
   const localizedName = getLocalizedRecipeText(recipe, language, 'name');
   const localizedDescription = getLocalizedRecipeText(recipe, language, 'description');
   const localizedDrinkVisual = getLocalizedRecipeDrinkVisual(recipe, language);
-
-  const proportionLabels: Record<'water' | 'sugar' | 'flavor', string> = {
-    water: t('proportionWater'),
-    sugar: t('proportionSugar'),
-    flavor: t('proportionFlavor'),
-  };
+  const recipeImageSource = recipe.media?.image ?? (recipe.media?.imageUrl ? { uri: recipe.media.imageUrl } : undefined);
 
   const beforeStartSteps =
     recipe.machineGuidance?.beforeStart ?? [
@@ -85,6 +74,13 @@ function RecipeDetail({
       t('recipeDefaultPourRun1'),
       t('recipeDefaultPourRun2'),
     ];
+
+  const selectedMachineSteps = machineProfile?.steps?.length
+    ? machineProfile.steps
+    : [...beforeStartSteps, ...pourAndRunSteps];
+
+  const prepSectionTitle = language === 'fr' ? 'Préparation dans la machine' : 'Machine preparation';
+  const decorationSectionTitle = language === 'fr' ? 'Décoration du verre' : 'Glass decoration';
 
   return (
     <ScrollView contentContainerStyle={styles.detailContainer}>
@@ -106,7 +102,7 @@ function RecipeDetail({
             <ThemedText style={[styles.detailDescription, { color: colors.textMuted }]}>{localizedDescription}</ThemedText>
           </View>
 
-          {!recipe.media?.image ? <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText> : null}
+          {!recipeImageSource ? <ThemedText style={styles.detailEmoji}>{recipe.emoji}</ThemedText> : null}
         </View>
 
         {showMachineSwitcher ? (
@@ -144,38 +140,14 @@ function RecipeDetail({
           </View>
         ) : null}
 
-        {recipe.media?.image ? (
-          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}> 
-            <Image source={recipe.media.image} style={styles.heroImage} resizeMode="contain" />
+        {recipeImageSource ? (
+          <View style={[styles.heroImageFrame, { backgroundColor: colors.surface }]}>
+            <Image source={recipeImageSource} style={styles.heroImage} resizeMode="contain" />
           </View>
         ) : null}
 
-        <View style={styles.metaRow}>
-          {recipe.serves ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
-              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>👥 {recipe.serves}</ThemedText>
-            </View>
-          ) : null}
-          <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
-            <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>⏱ {recipe.time.total}</ThemedText>
-          </View>
-          {recipe.garnish ? (
-            <View style={[styles.metaChip, { backgroundColor: colors.surface }]}> 
-              <ThemedText style={[styles.metaChipText, { color: colors.textMuted }]}>✨ {recipe.garnish}</ThemedText>
-            </View>
-          ) : null}
-        </View>
-
-        <View style={[styles.ratingCard, { backgroundColor: colors.surface }]}> 
-          <ThemedText style={[styles.ratingTitle, { color: colors.textMuted }]}>{t('ratingSectionTitle')}</ThemedText>
-          <View style={styles.ratingStarsRow}>
-            {[1, 2, 3, 4, 5].map((value) => (
-              <Pressable key={value} onPress={withHaptics(() => onRate(value))} hitSlop={8} style={styles.ratingStarButton}>
-                <FontAwesome name={value <= userRating ? 'star' : 'star-o'} size={24} color={colors.primary} />
-              </Pressable>
-            ))}
-          </View>
-          <ThemedText style={[styles.ratingSummary, { color: colors.textMuted }]}> 
+        <View style={[styles.ratingSummaryTopChip, { backgroundColor: colors.surface }]}>
+          <ThemedText style={[styles.ratingSummaryTopText, { color: colors.textMuted }]}>
             ⭐ {avgRating > 0 ? avgRating.toFixed(1) : '—'} ({votesCount})
           </ThemedText>
         </View>
@@ -213,68 +185,21 @@ function RecipeDetail({
         ))}
       </View>
 
-      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}> 
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeMachineSectionTitle')}</ThemedText>
-
-        <View style={[styles.machineProfileSummary, { backgroundColor: colors.surfaceSoft }]}> 
-          <ThemedText style={styles.stepLine}>{t('recipeActiveMachineLabel')}: {selectedMachineName} ({selectedMachineCapacityLiters}L)</ThemedText>
-          <ThemedText style={styles.stepLine}>{t('recipeTargetVolumeLabel')}: {machineProfile ? `${machineProfile.fillVolumeMl} ml` : `${selectedMachineCapacityLiters}L`}</ThemedText>
-          <ThemedText style={styles.stepLine}>{t('recipeProgramLabel')}: {machineProfile ? machineProfile.machineProgram : '—'}</ThemedText>
-          {typeof machineProfile?.estimatedAbvPercent === 'number' ? (
-            <ThemedText style={styles.stepLine}>{t('recipeEstimatedAbvLabel')}: ~{machineProfile.estimatedAbvPercent}%</ThemedText>
-          ) : null}
-          <ThemedText style={styles.stepLine}>{t('recipeMachineTimeLabel')}: {machineProfile ? machineProfile.estimatedRunTime : recipe.time.total}</ThemedText>
-        </View>
-
-        {machineProfile ? (
-          <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
-            <ThemedText style={styles.machineBlockTitle}>{t('recipeMachineStepsTitle')} ({selectedMachineName})</ThemedText>
-            {machineProfile.steps.map((step, index) => (
-              <ThemedText key={`machine-profile-step-${index}`} style={styles.stepLine}>
-                {index + 1}. {step}
-              </ThemedText>
-            ))}
-          </View>
-        ) : (
-          <>
-            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
-              <ThemedText style={styles.machineBlockTitle}>{t('recipePrepareBeforeTitle')}</ThemedText>
-              {beforeStartSteps.map((step, index) => (
-                <ThemedText key={`before-${index}`} style={styles.stepLine}>
-                  {index + 1}. {step}
-                </ThemedText>
-              ))}
-            </View>
-
-            <View style={[styles.machineBlock, { backgroundColor: colors.surfaceSoft }]}>
-              <ThemedText style={styles.machineBlockTitle}>{t('recipePourRunTitle')}</ThemedText>
-              {pourAndRunSteps.map((step, index) => (
-                <ThemedText key={`pour-${index}`} style={styles.stepLine}>
-                  {index + 1}. {step}
-                </ThemedText>
-              ))}
-            </View>
-
-            <View style={styles.proportionList}>
-              {(Object.keys(scaledProportions) as Array<keyof typeof scaledProportions>).map((key) => (
-                <View key={key} style={[styles.proportionRow, { borderBottomColor: colors.border }]}>
-                  <ThemedText style={[styles.proportionLabel, { color: colors.textMuted }]}>{proportionLabels[key]}</ThemedText>
-                  <ThemedText style={styles.proportionValue}>{scaledProportions[key]}</ThemedText>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-      </View>
-
       <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('recipeBasePreparationTitle')}</ThemedText>
-        {recipe.instructions.map((item, index) => (
-          <ThemedText key={index} style={styles.stepLine}>
-            {index + 1}. {item}
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{prepSectionTitle}</ThemedText>
+        {selectedMachineSteps.map((step, index) => (
+          <ThemedText key={`selected-machine-step-${index}`} style={styles.stepLine}>
+            {index + 1}. {step}
           </ThemedText>
         ))}
       </View>
+
+      {recipe.garnish ? (
+        <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{decorationSectionTitle}</ThemedText>
+          <ThemedText style={styles.stepLine}>✨ {recipe.garnish}</ThemedText>
+        </View>
+      ) : null}
 
       {(recipe.tips?.length || recipe.notes?.length) ? (
         <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
@@ -306,6 +231,20 @@ function RecipeDetail({
           );
         })}
       </View>
+
+      <View style={[styles.section, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { color: colors.primary }]}>{t('ratingSectionTitle')}</ThemedText>
+        <View style={styles.ratingStarsRow}>
+          {[1, 2, 3, 4, 5].map((value) => (
+            <Pressable key={value} onPress={withHaptics(() => onRate(value))} hitSlop={8} style={styles.ratingStarButton}>
+              <FontAwesome name={value <= userRating ? 'star' : 'star-o'} size={26} color={colors.primary} />
+            </Pressable>
+          ))}
+        </View>
+        <ThemedText style={[styles.ratingSummary, { color: colors.textMuted }]}>
+          {userRating > 0 ? `Votre note: ${userRating}/5` : 'Touchez une étoile pour noter'}
+        </ThemedText>
+      </View>
     </ScrollView>
   );
 }
@@ -336,7 +275,7 @@ export default function RecipeScreen() {
       <ThemedView style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.errorContainer}>
-          <ThemedText type="title" style={[styles.errorTitle, { color: colors.primary }]}> 
+          <ThemedText type="title" style={[styles.errorTitle, { color: colors.primary }]}>
             {language === 'fr' ? 'Chargement…' : 'Loading…'}
           </ThemedText>
         </View>
@@ -401,9 +340,7 @@ export default function RecipeScreen() {
       </View>
       <RecipeDetail
         recipe={recipe}
-        machineId={selectedMachineId}
-        selectedMachineName={selectedMachine.name}
-        selectedMachineCapacityLiters={selectedMachine.capacityLiters}
+        machineId={selectedMachine.id}
         showMachineSwitcher={machinePreferenceMode === 'both'}
         onMachineSelect={setSelectedMachineId}
         colors={colors}
@@ -529,6 +466,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  ratingSummaryTopChip: {
+    marginTop: 12,
+    alignSelf: 'center',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  ratingSummaryTopText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
   ratingCard: {
     marginTop: 14,
     borderRadius: 14,
@@ -643,15 +591,21 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.94 }, { translateY: 1 }],
     opacity: 0.84,
   },
-  machineBlock: {
+  machineModeCard: {
     borderRadius: 12,
+    borderWidth: 1,
     padding: 12,
     marginBottom: 10,
   },
-  machineBlockTitle: {
-    fontSize: 13,
+  machineModeTitle: {
+    fontSize: 14,
     fontWeight: '700',
     marginBottom: 6,
+  },
+  machineModeInlineTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
   },
   stepLine: {
     fontSize: 15,
