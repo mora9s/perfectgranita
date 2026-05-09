@@ -8,7 +8,7 @@ import { useTheme, type ThemePreference } from '@/app/theme/theme-context';
 import { withHaptics } from '@/app/utils/press-feedback';
 import type { MachinePreferenceMode } from '@/app/types/machine';
 
-const DONATION_URL = 'https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_HOSTED_BUTTON_ID';
+const DONATION_URL = 'https://paypal.me/perfectgranita';
 
 export default function SettingsScreen() {
   const { colors, themePreference, setThemePreference, resolvedTheme } = useTheme();
